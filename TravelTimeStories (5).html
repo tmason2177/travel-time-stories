@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Travel Time Stories ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --sky:#67C7F5;--sky2:#4db8f0;--sky-lt:#d4eefa;--sky-xl:#edf7fd;
+  --green:#7BC96F;--green2:#68b85d;--green-lt:#d6f0d2;
+  --yellow:#FFD95A;--yellow2:#f5c832;--yellow-lt:#fff5cc;
+  --cream:#FFFDF5;--paper:#FFF9EC;--sand:#F5EDD8;
+  --brown:#7B5E3A;--brown2:#5c4328;--peach:#FFB347;
+  --text:#2D2416;--text2:#6B5240;--text3:#9C8470;--white:#FFFFFF;
+  --shadow-sm:0 2px 8px rgba(123,94,58,.10);
+  --shadow-md:0 4px 20px rgba(123,94,58,.14);
+  --shadow-lg:0 8px 36px rgba(123,94,58,.18);
+  --radius:20px;--radius-sm:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{
+  background:linear-gradient(135deg,#d4eefa 0%,#d6f0d2 50%,#fff5cc 100%);
+  display:flex;justify-content:center;align-items:center;
+  min-height:100vh;font-family:'Baloo 2',cursive;overflow:hidden;
+}
+
+/* ══ PHONE SHELL ══ */
+.phone{width:390px;height:780px;background:var(--cream);border-radius:44px;
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  box-shadow:0 0 0 1px rgba(103,199,245,.25),0 40px 100px rgba(45,36,22,.22),0 0 0 8px rgba(255,255,255,.5);}
+
+/* ══ STATUS BAR ══ */
+.status-bar{height:44px;background:var(--sky);display:flex;align-items:center;
+  justify-content:space-between;padding:0 22px;flex-shrink:0;z-index:15;position:relative;}
+.status-time{font-size:15px;font-weight:700;color:var(--white);letter-spacing:-.3px;}
+.status-icons{display:flex;gap:6px;align-items:center;}
+
+/* ══ SCREENS ══ */
+.screens{flex:1;position:relative;overflow:hidden;}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:var(--cream);}
+.screen::-webkit-scrollbar{display:none;}
+.screen.active{display:flex;animation:slideIn .25s cubic-bezier(.34,1.2,.64,1);}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ NAV ══ */
+.nav{height:64px;background:var(--white);display:flex;align-items:center;
+  justify-content:space-around;flex-shrink:0;border-top:2px solid var(--sand);z-index:20;position:relative;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;
+  cursor:pointer;padding:6px 8px;border-radius:14px;transition:all .18s;flex:1;user-select:none;}
+.nav-item:hover{background:var(--sky-xl);}
+.nav-item.active{background:var(--sky-lt);}
+.nav-icon{font-size:20px;line-height:1;transition:transform .2s;}
+.nav-item.active .nav-icon{transform:scale(1.18);}
+.nav-label{font-size:8px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text3);}
+.nav-item.active .nav-label{color:var(--sky2);}
+
+/* ══ SHARED ══ */
+.scroll-area{flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:10px;}
+.scroll-area::-webkit-scrollbar{display:none;}
+.section-row{display:flex;justify-content:space-between;align-items:center;padding:16px 22px 8px;}
+.section-title{font-size:15px;font-weight:800;color:var(--text);}
+.section-link{font-size:12px;font-weight:700;color:var(--sky2);cursor:pointer;}
+.hero-title{font-size:24px;font-weight:800;color:var(--white);line-height:1.1;font-family:'Fredoka One',cursive;}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.85);font-weight:600;margin-top:3px;}
+
+/* ══ TOAST ══ */
+.toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--text);color:var(--white);border-radius:20px;
+  padding:10px 20px;font-size:13px;font-weight:700;white-space:nowrap;
+  opacity:0;transition:all .3s;z-index:200;pointer-events:none;max-width:88%;overflow:hidden;text-overflow:ellipsis;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ══ MODAL ══ */
+.modal-overlay{position:absolute;inset:0;background:rgba(45,36,22,.5);
+  z-index:50;display:none;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(3px);}
+.modal-overlay.open{display:flex;animation:fadeOv .2s ease;}
+@keyframes fadeOv{from{opacity:0}to{opacity:1}}
+.modal-sheet{background:var(--cream);border-radius:28px 28px 0 0;
+  width:100%;padding:20px 20px 36px;animation:slideUp .28s cubic-bezier(.34,1.1,.64,1);
+  position:relative;max-height:85vh;overflow-y:auto;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--sand);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:4px;font-family:'Fredoka One',cursive;}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:16px;}
+.modal-close{position:absolute;top:20px;right:20px;font-size:22px;cursor:pointer;
+  color:var(--text3);width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:var(--sand);z-index:5;}
+
+/* ══ TIMO MASCOT ══ */
+.timo-bubble{
+  display:flex;align-items:flex-end;gap:8px;
+  margin:12px 16px 0;animation:timoEnter .4s cubic-bezier(.34,1.3,.64,1);
+}
+@keyframes timoEnter{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.timo-avatar{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green) 0%,var(--sky) 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;flex-shrink:0;
+  box-shadow:0 3px 12px rgba(123,201,111,.4);
+  animation:timoWiggle 4s ease-in-out infinite;
+}
+@keyframes timoWiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.timo-speech{
+  background:var(--white);border:2px solid var(--green-lt);
+  border-radius:18px 18px 18px 4px;padding:10px 14px;
+  font-size:13px;font-weight:700;color:var(--brown);
+  box-shadow:var(--shadow-sm);flex:1;position:relative;
+}
+.timo-speech::after{
+  content:'';position:absolute;left:-8px;bottom:10px;
+  border:6px solid transparent;border-right-color:var(--green-lt);
+}
+.timo-name{font-size:9px;font-weight:800;color:var(--green2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+
+/* ══ ANIMATION LAYER ══ */
+.anim-layer{position:absolute;inset:0;pointer-events:none;z-index:180;overflow:hidden;}
+.polaroid-fly{
+  position:absolute;background:var(--white);border-radius:6px;
+  padding:8px 8px 24px;box-shadow:var(--shadow-lg);
+  font-size:28px;display:flex;align-items:center;justify-content:center;
+  width:70px;height:80px;
+  animation:polaroidDrop 1.4s cubic-bezier(.34,1.1,.64,1) forwards;
+}
+@keyframes polaroidDrop{
+  0%{opacity:0;transform:scale(.4) rotate(-5deg) translateY(-60px);}
+  40%{opacity:1;transform:scale(1.1) rotate(4deg) translateY(10px);}
+  65%{transform:scale(1) rotate(-2deg) translateY(0);}
+  80%{transform:scale(1) rotate(-2deg) translateY(0);opacity:1;}
+  100%{opacity:0;transform:scale(.5) rotate(-10deg) translateY(80px);}
+}
+.memory-swirl-particle{
+  position:absolute;font-size:20px;
+  animation:swirlAnim 1.6s ease-in forwards;
+}
+@keyframes swirlAnim{
+  0%{opacity:1;transform:scale(1) rotate(0deg) translate(0,0);}
+  100%{opacity:0;transform:scale(.3) rotate(720deg) translate(var(--tx),var(--ty));}
+}
+.story-generate-overlay{
+  position:absolute;inset:0;z-index:160;
+  background:rgba(255,253,245,.92);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;animation:genIn .3s ease;
+  backdrop-filter:blur(4px);
+}
+@keyframes genIn{from{opacity:0}to{opacity:1}}
+.story-book-anim{font-size:64px;animation:bookSpin 1.2s ease-in-out infinite alternate;}
+@keyframes bookSpin{from{transform:scale(1) rotate(-4deg)}to{transform:scale(1.08) rotate(4deg)}}
+.gen-text{font-family:'Fredoka One',cursive;font-size:20px;color:var(--brown);text-align:center;}
+.gen-dots span{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--sky);
+  margin:0 3px;animation:dotBounce 1s infinite;}
+.gen-dots span:nth-child(2){animation-delay:.2s;}
+.gen-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dotBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* ══ STAMP ANIMATION ══ */
+.stamp-overlay{
+  position:absolute;inset:0;z-index:170;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,217,90,.15);backdrop-filter:blur(2px);
+  animation:stampFadeIn .2s ease;
+}
+@keyframes stampFadeIn{from{opacity:0}to{opacity:1}}
+.stamp-anim-inner{text-align:center;animation:stampDrop .5s cubic-bezier(.34,1.5,.64,1);}
+@keyframes stampDrop{
+  0%{transform:scale(3) rotate(-15deg);opacity:0;}
+  60%{transform:scale(.95) rotate(2deg);opacity:1;}
+  80%{transform:scale(1.05) rotate(-1deg);}
+  100%{transform:scale(1) rotate(0deg);opacity:1;}
+}
+.stamp-anim-emoji{font-size:80px;display:block;}
+.stamp-anim-text{font-family:'Fredoka One',cursive;font-size:22px;color:var(--brown);margin-top:8px;}
+.stamp-anim-sub{font-size:13px;color:var(--text3);margin-top:4px;}
+.stamp-burst{position:absolute;inset:0;pointer-events:none;}
+.burst-particle{position:absolute;top:50%;left:50%;width:8px;height:8px;
+  border-radius:50%;animation:burst .8s ease-out forwards;}
+@keyframes burst{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  100%{transform:translate(calc(-50% + var(--bx)),calc(-50% + var(--by))) scale(0);opacity:0;}}
+
+/* ══ HOME / HERO ══ */
+.home-hero{
+  background:linear-gradient(135deg,#5ec5f5 0%,#67C7F5 40%,#7dd4c4 100%);
+  padding:20px 22px 18px;position:relative;overflow:hidden;flex-shrink:0;
+}
+.home-hero::before{content:'🌤';position:absolute;right:18px;top:14px;font-size:38px;opacity:.25;pointer-events:none;}
+.home-hero::after{content:'⭐';position:absolute;right:52px;top:28px;font-size:14px;opacity:.3;pointer-events:none;animation:twinkle 2s infinite;}
+@keyframes twinkle{0%,100%{opacity:.3}50%{opacity:.7}}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.hero-greeting-small{font-size:12px;color:rgba(255,255,255,.85);font-weight:700;letter-spacing:.3px;}
+.hero-name-big{font-size:20px;font-weight:800;color:var(--white);line-height:1.25;
+  font-family:'Fredoka One',cursive;margin-top:3px;}
+.hero-tagline{font-size:12.5px;color:rgba(255,255,255,.92);font-weight:600;margin-top:6px;line-height:1.4;}
+.hero-avatar{width:52px;height:52px;border-radius:50%;background:var(--yellow);
+  display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);flex-shrink:0;
+  animation:avatarPulse 3s ease-in-out infinite;}
+@keyframes avatarPulse{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.18)}50%{box-shadow:0 4px 24px rgba(255,217,90,.5)}}
+.hero-date-strip{margin-top:12px;display:flex;align-items:center;gap:8px;}
+.date-tag{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);
+  border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--white);}
+.demo-banner{flex-shrink:0;background:var(--yellow-lt);border-bottom:1.5px solid var(--yellow2);
+  padding:7px 22px;font-size:11px;font-weight:700;color:var(--brown);text-align:center;}
+
+/* ══ PRIMARY ACTION CARD ══ */
+.primary-action-card{margin:14px 16px 0;background:linear-gradient(135deg,var(--sky-xl) 0%,var(--green-lt) 100%);
+  border:2.5px solid var(--sky);border-radius:var(--radius);padding:20px 18px;
+  box-shadow:var(--shadow-md);text-align:center;flex-shrink:0;}
+.pac-icon{font-size:32px;margin-bottom:4px;}
+.pac-title{font-family:'Fredoka One',cursive;font-size:18px;color:var(--text);margin-bottom:5px;}
+.pac-desc{font-size:12px;color:var(--text2);font-weight:500;line-height:1.5;margin-bottom:14px;}
+.pac-btns{display:flex;gap:10px;}
+.pac-btn{flex:1;padding:12px 6px;border:none;border-radius:14px;background:var(--sky);color:#fff;
+  font-family:'Baloo 2',cursive;font-weight:800;font-size:12.5px;cursor:pointer;
+  box-shadow:0 3px 10px rgba(103,199,245,.4);transition:all .15s;}
+.pac-btn.alt{background:var(--green);box-shadow:0 3px 10px rgba(123,201,111,.4);}
+.pac-btn:active{transform:scale(.95);}
+
+/* Story ready / today card */
+.story-ready-card{margin:14px 16px 0;background:var(--white);border-radius:var(--radius);
+  padding:18px 18px;border:2.5px solid var(--sand);cursor:pointer;
+  box-shadow:var(--shadow-md);transition:transform .15s;position:relative;overflow:hidden;flex-shrink:0;}
+.story-ready-card:active{transform:scale(.98);}
+.story-ready-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;
+  background:repeating-linear-gradient(90deg,var(--yellow) 0,var(--yellow) 12px,var(--green) 12px,var(--green) 24px,var(--sky) 24px,var(--sky) 36px);}
+.story-ready-card.magical{border-color:var(--yellow2);box-shadow:var(--shadow-lg),0 0 0 4px var(--yellow-lt);
+  animation:cardFloat 3s ease-in-out infinite,glowPulse 2.4s ease-in-out infinite;}
+@keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes glowPulse{0%,100%{box-shadow:var(--shadow-lg),0 0 0 4px var(--yellow-lt),0 0 14px rgba(255,217,90,.3);}50%{box-shadow:var(--shadow-lg),0 0 0 4px var(--yellow-lt),0 0 32px rgba(255,217,90,.6);}}
+.sparkle{position:absolute;font-size:14px;animation:twinkle 1.8s ease-in-out infinite;pointer-events:none;}
+.sparkle.s1{top:12px;right:54px;}
+.sparkle.s2{top:42px;right:22px;animation-delay:.4s;}
+.sparkle.s3{bottom:54px;right:62px;animation-delay:.8s;}
+.ready-badge{display:inline-flex;align-items:center;gap:5px;background:var(--yellow-lt);
+  border:1.5px solid var(--yellow2);border-radius:20px;padding:3px 10px;
+  font-size:10px;font-weight:800;color:var(--brown);text-transform:uppercase;margin-bottom:8px;margin-top:2px;}
+.ready-title{font-size:18px;font-weight:800;color:var(--text);line-height:1.2;font-family:'Fredoka One',cursive;}
+.ready-meta{font-size:11px;color:var(--text3);margin-top:3px;font-weight:500;}
+.ready-cta{margin-top:14px;display:inline-flex;align-items:center;gap:6px;
+  background:var(--sky);color:var(--white);font-weight:800;font-size:13px;
+  border:none;border-radius:var(--radius-sm);padding:10px 18px;cursor:pointer;
+  font-family:'Baloo 2',cursive;box-shadow:0 3px 10px rgba(103,199,245,.4);transition:all .18s;}
+.dino-float{position:absolute;right:14px;bottom:8px;font-size:48px;
+  animation:float 3s ease-in-out infinite;pointer-events:none;opacity:.9;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* Moments scroll */
+.moments-scroll{display:flex;gap:10px;padding:0 16px 4px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.moments-scroll::-webkit-scrollbar{display:none;}
+.moment-chip{flex-shrink:0;background:var(--white);border:2px solid var(--sand);
+  border-radius:16px;padding:10px 14px;display:flex;align-items:center;gap:8px;
+  box-shadow:var(--shadow-sm);}
+.moment-emoji{font-size:22px;}
+.moment-name{font-size:12px;font-weight:700;color:var(--text);}
+.moment-type{font-size:10px;color:var(--text3);font-weight:500;text-transform:capitalize;}
+
+/* Quick actions */
+.quick-actions{display:flex;gap:10px;padding:14px 16px;flex-shrink:0;}
+.quick-btn{flex:1;background:var(--white);border:2px solid var(--sand);border-radius:18px;
+  padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;
+  cursor:pointer;transition:all .18s;box-shadow:var(--shadow-sm);}
+.quick-btn:hover{border-color:var(--sky);transform:translateY(-2px);}
+.quick-btn-icon{font-size:21px;}
+.quick-btn-label{font-size:9.5px;font-weight:700;color:var(--text2);text-align:center;}
+
+/* ON THIS DAY */
+.on-this-day{margin:4px 16px 0;border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow-md);flex-shrink:0;}
+.otd-header{background:linear-gradient(135deg,var(--peach) 0%,var(--yellow) 100%);
+  padding:14px 16px;display:flex;align-items:center;gap:10px;}
+.otd-icon{font-size:28px;animation:heartbeat 2s ease-in-out infinite;}
+@keyframes heartbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.12)}30%{transform:scale(1)}}
+.otd-title{font-family:'Fredoka One',cursive;font-size:17px;color:var(--white);}
+.otd-sub{font-size:11px;color:rgba(255,255,255,.85);margin-top:1px;}
+.otd-memories{background:var(--paper);}
+.otd-memory-row{display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-bottom:1px solid var(--sand);cursor:pointer;transition:all .15s;}
+.otd-memory-row:last-child{border-bottom:none;}
+.otd-memory-row:hover{background:var(--sky-xl);}
+.otd-mem-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:22px;flex-shrink:0;}
+.otd-mem-title{font-size:13px;font-weight:700;color:var(--text);}
+.otd-mem-date{font-size:10px;color:var(--text3);margin-top:2px;}
+.otd-mem-arrow{font-size:16px;color:var(--text3);margin-left:auto;}
+
+/* ══ ADVENTURES / VAULT CARD (shared) ══ */
+.adv-hero,.story-hero-screen,.passport-hero,.vault-hero{
+  background:linear-gradient(135deg,var(--green) 0%,#6dc46a 100%);
+  padding:18px 22px 20px;flex-shrink:0;}
+.passport-hero{background:linear-gradient(135deg,var(--yellow) 0%,#fcc800 100%);}
+.story-hero-screen{background:linear-gradient(135deg,var(--yellow) 0%,#ffd040 100%);}
+.vault-hero{background:linear-gradient(135deg,var(--sky) 0%,#4ec9f8 100%);}
+.new-adv-btn{margin:14px 16px 0;width:calc(100% - 32px);padding:14px;border:none;
+  border-radius:var(--radius);background:linear-gradient(135deg,var(--yellow) 0%,var(--peach) 100%);
+  color:var(--brown);font-family:'Fredoka One',cursive;font-size:15px;cursor:pointer;
+  box-shadow:var(--shadow-md);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+  flex-shrink:0;}
+.new-adv-btn:active{transform:scale(.98);}
+.vault-card{background:var(--white);border:2px solid var(--sand);border-radius:var(--radius);
+  padding:14px;margin-bottom:10px;cursor:pointer;transition:all .18s;
+  display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);flex-wrap:wrap;}
+.vault-card:hover{border-color:var(--sky);box-shadow:var(--shadow-md);}
+.vault-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:24px;flex-shrink:0;}
+.vault-info{flex:1;min-width:0;}
+.vault-title-text{font-size:14px;font-weight:800;color:var(--text);}
+.vault-date{font-size:11px;color:var(--text3);font-weight:500;margin-top:1px;}
+.vault-mmt{font-size:10px;color:var(--text3);font-weight:500;margin-top:3px;}
+.vault-acts{display:flex;gap:6px;}
+.vault-act{font-size:16px;cursor:pointer;opacity:.55;transition:opacity .18s;padding:2px;}
+.vault-act:hover{opacity:1;}
+.vault-preview{width:100%;margin-top:10px;padding:12px;background:var(--paper);
+  border-radius:12px;font-family:'Lora',serif;font-size:12px;line-height:1.7;
+  color:var(--text2);font-style:italic;display:none;border:1px solid var(--sand);}
+.vault-card.expanded .vault-preview{display:block;}
+.example-badge{display:inline-block;background:var(--yellow-lt);border:1px solid var(--yellow2);
+  border-radius:8px;padding:1px 6px;font-size:9px;font-weight:800;color:var(--brown);
+  margin-left:4px;vertical-align:middle;}
+
+/* ══ EMPTY STATE ══ */
+.empty-state{text-align:center;padding:44px 24px;color:var(--text3);}
+.empty-emoji{font-size:42px;margin-bottom:10px;}
+.empty-title{font-weight:800;color:var(--text);font-size:15px;margin-bottom:5px;font-family:'Fredoka One',cursive;}
+.empty-sub{font-size:12px;line-height:1.6;}
+
+/* ══ CAPTURE GRID (inside Adventure Detail modal) ══ */
+.capture-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cap-card{background:var(--white);border:2px solid var(--sand);border-radius:var(--radius-sm);
+  padding:14px 12px;display:flex;flex-direction:column;align-items:flex-start;
+  cursor:pointer;transition:all .18s;box-shadow:var(--shadow-sm);position:relative;}
+.cap-card:active{transform:scale(.96);}
+.cap-card.sky{border-top:4px solid var(--sky);}
+.cap-card.green{border-top:4px solid var(--green);}
+.cap-card.yellow{border-top:4px solid var(--yellow);}
+.cap-card.brown{border-top:4px solid var(--brown);}
+.cap-icon{font-size:24px;margin-bottom:6px;}
+.cap-name{font-size:13px;font-weight:800;color:var(--text);}
+.cap-desc{font-size:10.5px;color:var(--text3);margin-top:2px;line-height:1.35;font-weight:500;}
+.cap-card.recording{background:#fff5f5;border-color:#e05555 !important;}
+.rec-timer{font-size:16px;font-weight:800;color:#e05555;margin-top:5px;}
+
+/* Memory list inside detail */
+.memory-list{padding:0;}
+.memory-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sand);}
+.memory-row:last-child{border-bottom:none;}
+.memory-row-label{flex:1;font-size:12px;font-weight:600;color:var(--text2);min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.memory-row-icon{width:34px;height:34px;border-radius:8px;background:var(--sky-xl);
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+
+/* Feeling picker */
+.feeling-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;}
+.feeling-opt{background:var(--white);border:2px solid var(--sand);border-radius:14px;
+  padding:12px 6px;text-align:center;cursor:pointer;transition:all .15s;}
+.feeling-opt:hover{border-color:var(--yellow2);background:var(--yellow-lt);}
+.feeling-emoji{font-size:26px;}
+.feeling-label{font-size:10px;font-weight:700;color:var(--text2);margin-top:4px;}
+.subview-back{margin-top:14px;font-size:12px;font-weight:700;color:var(--sky2);cursor:pointer;text-align:center;}
+
+/* Adventure Tracker (GPS) */
+.tracker-row{display:flex;align-items:center;justify-content:space-between;margin:2px 0 4px;}
+.tracker-label{font-size:13px;font-weight:800;color:var(--text);}
+.tracker-toggle{width:46px;height:26px;border-radius:14px;background:var(--sand);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.tracker-toggle.on{background:var(--green);}
+.tracker-toggle-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--white);box-shadow:var(--shadow-sm);transition:transform .2s;}
+.tracker-toggle.on .tracker-toggle-knob{transform:translateX(20px);}
+.tracker-status{font-size:11.5px;font-weight:700;color:var(--text2);margin-bottom:4px;}
+.tracker-privacy{font-size:10px;color:var(--text3);line-height:1.5;margin-bottom:12px;}
+.timeline-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 0 4px;}
+.timeline-stop{background:var(--sky-xl);border:1.5px solid var(--sky);border-radius:14px;padding:6px 10px;
+  font-size:11px;font-weight:700;color:var(--brown);cursor:pointer;transition:all .15s;}
+.timeline-stop:hover{border-color:#e05555;background:#fff5f5;}
+.timeline-arrow{color:var(--text3);font-size:12px;}
+.stop-prompt{background:var(--yellow-lt);border:2px solid var(--yellow2);border-radius:14px;padding:14px;margin:10px 0 14px;}
+.stop-prompt-title{font-size:13px;font-weight:800;color:var(--brown);margin-bottom:10px;}
+.quick-title-chip.sel{background:var(--sky-lt);border-color:var(--sky2);color:var(--sky2);}
+.tracking-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;color:var(--green2);}
+
+/* Generic input/textarea/button used in modals */
+.field-input,.field-textarea{width:100%;border:1.5px solid var(--sand);border-radius:12px;padding:11px;
+  font-family:'Baloo 2',cursive;font-size:13.5px;color:var(--text);background:var(--white);}
+.field-textarea{resize:vertical;}
+.modal-btn{width:100%;padding:12px;border:none;border-radius:14px;font-family:'Baloo 2',cursive;
+  font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;margin-top:10px;}
+.modal-btn.save{background:var(--sky);color:var(--white);}
+.modal-btn.secondary{background:var(--sand);color:var(--brown);}
+.modal-btn.danger{background:#fff0f0;color:#e05555;border:1.5px solid #ffbfbf;}
+.quick-title-row{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 14px;}
+.quick-title-chip{padding:6px 12px;border-radius:20px;border:1.5px solid var(--sand);
+  font-size:11.5px;font-weight:700;color:var(--text3);cursor:pointer;background:var(--white);}
+.quick-title-chip:hover{background:var(--sky-lt);border-color:var(--sky2);color:var(--sky2);}
+
+/* ══ STORY SCREEN ══ */
+.story-select{width:calc(100% - 32px);margin:12px 16px 0;padding:10px 12px;border-radius:12px;
+  border:1.5px solid var(--sand);font-family:'Baloo 2',cursive;font-size:12.5px;font-weight:700;
+  color:var(--text2);background:var(--white);flex-shrink:0;}
+.story-tabs{display:flex;gap:8px;padding:12px 16px 6px;flex-shrink:0;}
+.s-tab{flex:1;padding:8px 4px;border-radius:12px;text-align:center;
+  font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--sand);
+  color:var(--text3);background:var(--white);transition:all .18s;}
+.s-tab.active{background:var(--yellow-lt);border-color:var(--yellow2);color:var(--brown);}
+.story-book{margin:8px 16px 0;border-radius:var(--radius);background:var(--paper);
+  border:2px solid var(--sand);padding:20px 18px;box-shadow:var(--shadow-sm);
+  flex-shrink:0;position:relative;overflow:hidden;}
+.story-book::before{content:'';position:absolute;top:0;left:0;bottom:0;width:5px;
+  background:repeating-linear-gradient(180deg,var(--yellow) 0,var(--yellow) 20px,var(--sky) 20px,var(--sky) 40px,var(--green) 40px,var(--green) 60px);}
+.story-book-title{font-family:'Fredoka One',cursive;font-size:18px;color:var(--text);
+  line-height:1.3;margin-bottom:4px;padding-left:10px;}
+.story-book-meta{font-size:11px;color:var(--text3);margin-bottom:14px;padding-left:10px;}
+.story-body{font-family:'Lora',serif;font-size:14px;line-height:1.8;
+  color:var(--text2);font-style:italic;padding-left:10px;}
+.audio-bar{margin:12px 16px 0;background:var(--white);border:2px solid var(--sand);
+  border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;
+  box-shadow:var(--shadow-sm);flex-shrink:0;}
+.audio-play-btn{width:40px;height:40px;border-radius:50%;background:var(--sky);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:16px;color:var(--white);flex-shrink:0;
+  box-shadow:0 3px 10px rgba(103,199,245,.4);transition:all .18s;user-select:none;}
+.audio-prog{flex:1;}
+.audio-track{height:4px;background:var(--sand);border-radius:2px;cursor:pointer;position:relative;}
+.audio-fill{height:100%;background:var(--sky);border-radius:2px;transition:width .5s linear;pointer-events:none;}
+.audio-times{font-size:10px;color:var(--text3);margin-top:4px;display:flex;justify-content:space-between;font-weight:600;}
+.audio-note{font-size:10px;color:var(--text3);text-align:center;margin:6px 16px 0;flex-shrink:0;}
+.voice-row{display:flex;gap:7px;padding:12px 16px 0;flex-shrink:0;flex-wrap:wrap;}
+.voice-pill{padding:6px 13px;border-radius:20px;font-size:11px;font-weight:700;
+  border:1.5px solid var(--sand);color:var(--text3);background:var(--white);
+  cursor:pointer;transition:all .18s;}
+.voice-pill.active{background:var(--sky-lt);border-color:var(--sky2);color:var(--sky2);}
+.gen-story-btn{margin:12px 16px 0;width:calc(100% - 32px);padding:14px;border:none;
+  border-radius:var(--radius);background:linear-gradient(135deg,var(--yellow) 0%,var(--peach) 100%);
+  color:var(--brown);font-family:'Fredoka One',cursive;font-size:16px;cursor:pointer;
+  box-shadow:var(--shadow-md);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+  flex-shrink:0;}
+.gen-story-btn:active{transform:scale(.98);}
+
+/* ══ PASSPORT ══ */
+.pp-stats{margin:14px 16px 0;background:var(--white);border:2px solid var(--sand);
+  border-radius:var(--radius);padding:16px 10px;display:flex;justify-content:space-around;
+  box-shadow:var(--shadow-sm);flex-shrink:0;}
+.pp-stat{text-align:center;}
+.pp-num{font-size:26px;font-weight:800;color:var(--sky2);font-family:'Fredoka One',cursive;}
+.pp-lbl{font-size:9.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.stamps-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px;flex-shrink:0;}
+.stamp{background:var(--white);border:2px solid var(--sand);border-radius:18px;
+  padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;
+  cursor:pointer;transition:all .18s;box-shadow:var(--shadow-sm);}
+.stamp.earned{border-color:var(--yellow2);background:var(--yellow-lt);}
+.stamp.locked{opacity:.5;}
+.stamp-emoji{font-size:30px;}
+.stamp-name{font-size:10.5px;font-weight:700;color:var(--text2);text-align:center;line-height:1.3;}
+.stamp-status{font-size:13px;}
+
+/* ══ FEEDBACK FAB ══ */
+.feedback-fab{position:absolute;right:14px;bottom:76px;width:46px;height:46px;border-radius:50%;
+  background:var(--white);border:2px solid var(--sand);display:flex;align-items:center;
+  justify-content:center;font-size:20px;box-shadow:var(--shadow-md);cursor:pointer;
+  z-index:30;transition:transform .15s;}
+.feedback-fab:active{transform:scale(.88);}
+</style>
+</head>
+<body>
+<div class="phone" id="app">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time" id="clockDisplay">10:53</span>
+    <div class="status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="4" width="3" height="8" rx="1" opacity="0.5"/><rect x="4" y="2.5" width="3" height="9.5" rx="1" opacity="0.7"/><rect x="8" y="1" width="3" height="11" rx="1" opacity="0.85"/><rect x="12" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="15" height="12" viewBox="0 0 15 12" fill="none"><path d="M7.5 2.5C9.8 2.5 11.8 3.6 13.1 5.3L14.3 4C12.7 2 10.2.8 7.5.8 4.8.8 2.3 2 .7 4L1.9 5.3C3.2 3.6 5.2 2.5 7.5 2.5Z" fill="white"/><path d="M7.5 5.2C9 5.2 10.4 5.9 11.3 7L12.5 5.7C11.3 4.3 9.5 3.5 7.5 3.5 5.5 3.5 3.7 4.3 2.5 5.7L3.7 7C4.6 5.9 6 5.2 7.5 5.2Z" fill="white"/><circle cx="7.5" cy="9.5" r="2" fill="white"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity="0.5"/><rect x="2" y="2" width="17" height="8" rx="2" fill="white"/><path d="M23 4v4a2 2 0 000-4z" fill="white" fill-opacity="0.5"/></svg>
+    </div>
+  </div>
+
+  <!-- Screens -->
+  <div class="screens">
+
+    <!-- ── HOME ── -->
+    <div class="screen active" id="screen-home">
+      <div class="home-hero">
+        <div class="hero-top">
+          <div>
+            <div class="hero-greeting-small" id="homeGreeting">Good morning! 🌞</div>
+            <div class="hero-name-big">Turn today's moments into tomorrow's memories.</div>
+            <div class="hero-tagline">Capture photos, create stories, and build a collection of adventures your family will treasure forever.</div>
+            <div class="hero-tagline">🐢 Timo is ready for your next adventure!</div>
+          </div>
+          <div class="hero-avatar" id="heroAvatar" title="Tap to set the star of the stories">👧</div>
+        </div>
+        <div class="hero-date-strip">
+          <div class="date-tag" id="heroDateTag">🗓 —</div>
+        </div>
+      </div>
+      <div class="demo-banner">✨ <b>Demo Mode</b> — Everything you create is saved on your device.</div>
+      <div class="scroll-area">
+
+        <!-- Primary action card -->
+        <div class="primary-action-card">
+          <div class="pac-icon">📸</div>
+          <div class="pac-title">Start Today's Adventure</div>
+          <div class="pac-desc">Add photos, voice notes, and memories to create a personalized family story.</div>
+          <div class="pac-btns">
+            <button class="pac-btn" id="pacPhotoBtn">📸 Add Memories</button>
+            <button class="pac-btn alt" id="pacVoiceBtn">🎤 Record Memory</button>
+          </div>
+        </div>
+
+        <!-- Today's Adventure / Story Ready (combined, conditional) -->
+        <div id="storyReadyWrap"></div>
+
+        <!-- Timo mascot -->
+        <div class="timo-bubble" id="timoHome">
+          <div class="timo-avatar">🐢</div>
+          <div class="timo-speech">
+            <div class="timo-name">Timo says</div>
+            What memories will we discover today? ✨
+          </div>
+        </div>
+
+        <!-- Today's moments -->
+        <div id="todaysMomentsSection" style="display:none;">
+          <div class="section-row">
+            <div class="section-title">Today's Moments</div>
+          </div>
+          <div class="moments-scroll" id="homeMoments"></div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="section-row" style="margin-top:4px;"><div class="section-title">Quick Actions</div></div>
+        <div class="quick-actions">
+          <div class="quick-btn" data-action="qa-new"><div class="quick-btn-icon">➕</div><div class="quick-btn-label">New Adventure</div></div>
+          <div class="quick-btn" data-nav="adventures"><div class="quick-btn-icon">🗂️</div><div class="quick-btn-label">Adventures</div></div>
+          <div class="quick-btn" data-nav="passport"><div class="quick-btn-icon">🎫</div><div class="quick-btn-label">Passport</div></div>
+          <div class="quick-btn" data-nav="vault"><div class="quick-btn-icon">💾</div><div class="quick-btn-label">Vault</div></div>
+        </div>
+
+        <!-- On This Day -->
+        <div class="on-this-day" id="onThisDayWrap" style="display:none;">
+          <div class="otd-header">
+            <div class="otd-icon">💝</div>
+            <div>
+              <div class="otd-title">On This Day</div>
+              <div class="otd-sub">Tap to relive a memory</div>
+            </div>
+          </div>
+          <div class="otd-memories" id="otdMemories"></div>
+        </div>
+        <div style="height:16px;"></div>
+      </div>
+    </div>
+
+    <!-- ── ADVENTURES ── -->
+    <div class="screen" id="screen-adventures">
+      <div class="adv-hero">
+        <div class="hero-title">My Adventures 🗂️</div>
+        <div class="hero-sub">Every family memory starts here</div>
+      </div>
+      <div class="scroll-area">
+        <button class="new-adv-btn" id="newAdventureBtnTop">➕ Start a New Adventure</button>
+        <div class="section-row"><div class="section-title">All Adventures</div></div>
+        <div style="padding:0 16px;" id="adventuresList"></div>
+        <div style="height:12px;"></div>
+      </div>
+    </div>
+
+    <!-- ── STORY ── -->
+    <div class="screen" id="screen-story">
+      <div class="story-hero-screen">
+        <div class="hero-title">Story Time 📖</div>
+        <div class="hero-sub">Every adventure becomes a bedtime story</div>
+      </div>
+      <div class="scroll-area">
+        <div id="storyEmptyState"></div>
+        <div id="storyMainContent" style="display:none;flex-direction:column;">
+          <select class="story-select" id="storyAdvSelect"></select>
+          <div class="story-tabs">
+            <div class="s-tab active" data-tab="bedtime">🌙 Bedtime</div>
+            <div class="s-tab" data-tab="adventure">⚔️ Adventure</div>
+            <div class="s-tab" data-tab="educational">🔬 Educational</div>
+          </div>
+          <button class="gen-story-btn" id="genStoryBtn">✨ Generate New Story Magic!</button>
+          <div class="story-book">
+            <div class="story-book-title" id="storyTitle">—</div>
+            <div class="story-book-meta" id="storyBookMeta">—</div>
+            <div class="story-body" id="storyBody">—</div>
+          </div>
+          <div id="audioBarWrap" style="display:none;flex-direction:column;">
+            <div class="audio-bar">
+              <div class="audio-play-btn" id="playBtn">▶</div>
+              <div class="audio-prog">
+                <div class="audio-track" id="audioTrack"><div class="audio-fill" id="audioFill" style="width:0%;"></div></div>
+                <div class="audio-times"><span id="audioElapsed">0:00</span><span id="audioDuration">3:24</span></div>
+              </div>
+            </div>
+            <div class="audio-note">🎙️ Narration preview — real read-aloud narration is coming soon</div>
+            <div class="section-row" style="margin-top:6px;"><div class="section-title">Narrator Voice</div></div>
+            <div class="voice-row">
+              <div class="voice-pill active" data-voice="lullaby">🌙 Calm Lullaby</div>
+              <div class="voice-pill" data-voice="storyteller">🎭 Storyteller</div>
+              <div class="voice-pill" data-voice="child">⭐ Child Voice</div>
+              <div class="voice-pill" data-voice="owl">🦉 Wise Owl</div>
+            </div>
+          </div>
+          <div style="height:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PASSPORT ── -->
+    <div class="screen" id="screen-passport">
+      <div class="passport-hero">
+        <div class="hero-title">Adventure Passport 🎫</div>
+        <div class="hero-sub" id="passportSub">Your stamp collection</div>
+      </div>
+      <div class="scroll-area">
+        <div class="pp-stats">
+          <div class="pp-stat"><div class="pp-num" id="statAdv">0</div><div class="pp-lbl">Adventures</div></div>
+          <div class="pp-stat"><div class="pp-num" id="statLoc">0</div><div class="pp-lbl">Locations</div></div>
+          <div class="pp-stat"><div class="pp-num" id="statStamps">0</div><div class="pp-lbl">Stamps</div></div>
+        </div>
+        <div class="stamps-grid" id="stampsGrid"></div>
+        <div style="height:8px;"></div>
+      </div>
+    </div>
+
+    <!-- ── VAULT ── -->
+    <div class="screen" id="screen-vault">
+      <div class="vault-hero">
+        <div class="hero-title">Story Vault 💾</div>
+        <div class="hero-sub">All of your family's saved stories</div>
+      </div>
+      <div class="scroll-area">
+        <div style="padding:14px 16px 0;" id="vaultList"></div>
+        <div style="height:8px;"></div>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- Nav -->
+  <div class="nav" id="mainNav">
+    <div class="nav-item active" data-screen="home"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+    <div class="nav-item" data-screen="adventures"><div class="nav-icon">🗂️</div><div class="nav-label">Adventures</div></div>
+    <div class="nav-item" data-screen="story"><div class="nav-icon">📖</div><div class="nav-label">Story</div></div>
+    <div class="nav-item" data-screen="passport"><div class="nav-icon">🎫</div><div class="nav-label">Passport</div></div>
+    <div class="nav-item" data-screen="vault"><div class="nav-icon">💾</div><div class="nav-label">Vault</div></div>
+  </div>
+
+  <!-- Feedback FAB -->
+  <div class="feedback-fab" id="feedbackFab" title="Tell us what you think">💭</div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Animation layer -->
+  <div class="anim-layer" id="animLayer"></div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-sheet" id="modalSheet">
+      <div class="modal-handle"></div>
+      <div class="modal-close" id="modalClose">✕</div>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- Hidden file inputs for real photo capture -->
+  <input type="file" id="fileCamera" accept="image/*" capture="environment" style="display:none;">
+  <input type="file" id="fileUpload" accept="image/*" style="display:none;">
+
+</div><!-- /phone -->
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   TRAVEL TIME STORIES — localStorage-backed demo build
+   No external/paid AI. All story generation is template-based.
+   ════════════════════════════════════════════════════════════ */
+
+// ───────── STORAGE KEYS ─────────
+const LS_KEYS = { adventures:'tts_adventures', stamps:'tts_stamps', childName:'tts_childName', feedback:'tts_feedback' };
+
+// ───────── REFERENCE DATA ─────────
+const FEELING_OPTIONS = [
+  {key:'excited',emoji:'🤩',label:'Excited',adj:'sparkled with excitement'},
+  {key:'happy',emoji:'😄',label:'Happy',adj:'beamed with happiness'},
+  {key:'curious',emoji:'🤔',label:'Curious',adj:'bubbled with curiosity'},
+  {key:'brave',emoji:'💪',label:'Brave',adj:'felt brave and bold'},
+  {key:'silly',emoji:'😂',label:'Silly',adj:"couldn't stop giggling"},
+  {key:'calm',emoji:'😌',label:'Calm',adj:'felt calm and peaceful'},
+  {key:'proud',emoji:'🥹',label:'Proud',adj:'stood tall, proud of the day'},
+];
+function feelingByKey(k){ return FEELING_OPTIONS.find(f=>f.key===k); }
+
+const THEME_MAP=[
+  {keys:['birthday','cake','party'],emoji:'🎂',theme:'birthday'},
+  {keys:['camp','tent','campfire','camping'],emoji:'🏕️',theme:'camping'},
+  {keys:['aquarium','octopus','fish tank'],emoji:'🐠',theme:'aquarium'},
+  {keys:['zoo','lion','safari','giraffe'],emoji:'🦁',theme:'zoo'},
+  {keys:['school','class','teacher'],emoji:'🎒',theme:'school'},
+  {keys:['beach','sand','ocean','wave','shore'],emoji:'🏖️',theme:'beach'},
+  {keys:['museum','art','glass','gallery'],emoji:'🎨',theme:'museum'},
+  {keys:['train','road trip','roadtrip','drive'],emoji:'🚂',theme:'roadtrip'},
+  {keys:['park','garden','hike','trail','forest'],emoji:'🌳',theme:'park'},
+  {keys:['dinosaur','dino'],emoji:'🦕',theme:'dinosaur'},
+  {keys:['grandma','grandpa','family','bbq','dinner','cobbler','reunion'],emoji:'👨\u200d👩\u200d👧',theme:'family'},
+  {keys:['sport','game','soccer','baseball','basketball'],emoji:'⚽',theme:'sports'},
+];
+function inferTheme(title){
+  const t=(title||'').toLowerCase();
+  for(const m of THEME_MAP){ if(m.keys.some(k=>t.includes(k))) return {emoji:m.emoji,theme:m.theme}; }
+  return {emoji:'🌟',theme:'default'};
+}
+
+const TIMO_THEME_MESSAGES = {
+  birthday:["Birthdays are some of my favorite memories! Let's save this celebration forever. 🎂","A birthday adventure! Let's make sure every candle gets remembered. 🎉"],
+  camping:["Camping adventures always make wonderful stories. I wonder what we'll discover today! 🏕️","Stars, campfires, and s'mores — I can't wait to help tell this one! 🌲"],
+  aquarium:["The ocean is full of amazing stories. I can't wait to help tell this one! 🐠","Bubbles and fins ahead! Let's dive into this memory together. 🌊"],
+  zoo:["Roar! A zoo adventure! I can't wait to help tell this story! 🦁","So many animal friends to remember — let's capture them all! 🐾"],
+  school:["A first day of school is a big adventure! Let's remember every moment. 🎒","School days make the best stories. I'm taking notes! ✏️"],
+  beach:["Sandy toes and salty air — this sounds like a beautiful memory! 🏖️","Beach days are made for stories. Let's bottle this one up! 🐚"],
+  museum:["Ooh, art and discovery! I love a good museum adventure. 🎨","Museums are full of wonder — let's remember what you found! 🖼️"],
+  roadtrip:["Wheels turning, new places appearing — a great story in the making! 🚂","Adventures on the move are some of the best kind! 🚗"],
+  park:["Fresh air and open trails — let's capture this outdoor adventure! 🌳","Nature adventures always surprise me. What did you find today? 🍃"],
+  dinosaur:["Wow! A dinosaur adventure! I can't wait to help tell this story! 🦕","ROAR! Dino days are the BEST days. Let's remember this one! 🦴"],
+  family:["Family time creates some of the best stories. Let's add this memory to your collection. 💛","Time with the people we love is always worth remembering. 👨\u200d👩\u200d👧"],
+  sports:["Game day! Let's remember every cheer and every play. ⚽","What a match! This one deserves a story. 🏆"],
+  default:["What memories will we discover today? ✨","Every moment is a story waiting to be told! 🐢","I'm so excited to see what this adventure holds! 🌟"],
+};
+const TIMO_LOCATION_MESSAGES = [
+  n=>`Wow! You visited ${n} different places today!`,
+  n=>'This adventure took us all over town!',
+  n=>'Every stop adds another chapter to the story!',
+];
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function getTimoMessage(adventure){
+  if(!adventure) return pick(TIMO_THEME_MESSAGES.default);
+  if(adventure.stops && adventure.stops.length>=2 && Math.random()<0.5){
+    return pick(TIMO_LOCATION_MESSAGES)(adventure.stops.length);
+  }
+  const arr=TIMO_THEME_MESSAGES[adventure.theme]||TIMO_THEME_MESSAGES.default;
+  return pick(arr);
+}
+
+const STAMP_DEFS=[
+  {key:'firstAdventure',emoji:'🌟',name:'First Adventure'},
+  {key:'firstStory',emoji:'📖',name:'First Story'},
+  {key:'firstVoice',emoji:'🎤',name:'First Voice Memory'},
+  {key:'firstPhoto',emoji:'📸',name:'First Photo Upload'},
+];
+const STAMP_HINTS={
+  firstAdventure:'Create your first adventure to earn this!',
+  firstStory:'Generate your first story to earn this!',
+  firstVoice:'Record a voice memory to earn this!',
+  firstPhoto:'Add a photo to earn this!',
+};
+
+// ───────── PSEUDO-AI STORY ENGINE ─────────
+const OPENERS = {
+  bedtime:[
+    ctx=>`Once upon a day in ${ctx.month}, ${ctx.name} set out on a wonderful adventure called "${ctx.title}."`,
+    ctx=>`On a cozy evening, ${ctx.name} curled up to remember the day's adventure: "${ctx.title}."`,
+    ctx=>`Not so long ago, ${ctx.name} discovered something magical during "${ctx.title}."`,
+    ctx=>`Gather close — this is the story of "${ctx.title}," one of ${ctx.name}'s best adventures yet.`,
+  ],
+  adventure:[
+    ctx=>`ADVENTURE LOG: ${ctx.name} set off on a daring quest known as "${ctx.title}"!`,
+    ctx=>`${ctx.name} grabbed her gear — today's mission was "${ctx.title}"!`,
+    ctx=>`The adventure "${ctx.title}" began the moment ${ctx.name} stepped outside.`,
+    ctx=>`Alert! ${ctx.name} has entered the adventure zone: "${ctx.title}."`,
+  ],
+  educational:[
+    ctx=>`Did you know? Today ${ctx.name} learned all about "${ctx.title}."`,
+    ctx=>`${ctx.name}'s adventure, "${ctx.title}," was full of fascinating discoveries.`,
+    ctx=>`On this day, ${ctx.name} explored "${ctx.title}" and uncovered new facts.`,
+    ctx=>`Class is in session! ${ctx.name} spent the day learning through "${ctx.title}."`,
+  ],
+};
+const CLOSERS = {
+  bedtime:[ctx=>'The End 🌙✨',ctx=>`And with that, ${ctx.name} drifted off to sleep, full of happy memories. 🌙✨`,ctx=>'Sweet dreams were made of moments just like this one. The End 🌙'],
+  adventure:[ctx=>'Mission complete! ⚔️🏆',ctx=>'Adventure logged. Until the next quest! ⚔️',ctx=>`Another victory for ${ctx.name}, explorer extraordinaire! 🏆`],
+  educational:[ctx=>'What an adventure in learning! 🔬🌍',ctx=>`${ctx.name} added some brand-new facts to her collection today. 🔬`,ctx=>'Discovery complete — until the next lesson! 🌍'],
+};
+function noteSentence(ctx,m){
+  const starts=['Then, ','A little later, ','Soon after, ','Right in the middle of it all, ','Best of all, '];
+  return `${pick(starts)}${m.note}`;
+}
+function photoSentence(ctx,m){
+  const v=[`${ctx.name} snapped a photo of ${m.title||'something special'}.`,`A picture was taken to remember ${m.title||'the moment'} forever.`,`Click! ${ctx.name} captured ${m.title||'a moment'} on camera.`];
+  return pick(v);
+}
+function voiceSentence(ctx,m){
+  const v=[`${ctx.name} recorded the sound of ${m.title||'the moment'}.`,`They paused to capture the sound of ${m.title||'something special'} on a voice memo.`,`${ctx.name} pressed record, just to remember what ${m.title||'this moment'} sounded like.`];
+  return pick(v);
+}
+function locationSentence(ctx,m){
+  const place=m.location||m.title;
+  const v=[`Their adventure took them to ${place}.`,`One stop along the way was ${place}.`,`They explored every corner of ${place}.`];
+  return pick(v);
+}
+function buildStopsNarrative(ctx,stops){
+  if(!stops || stops.length===0) return '';
+  const names=stops.map(s=>s.label);
+  if(names.length===1) return `The whole adventure happened at ${names[0]}.`;
+  const openers=[
+    n=>`The adventure began at ${n[0]} before the family traveled to ${n[1]}.`,
+    n=>`It all started at ${n[0]}, and from there they made their way to ${n[1]}.`,
+    n=>`${ctx.name} began the day at ${n[0]}, then set off toward ${n[1]}.`,
+  ];
+  let out=pick(openers)(names);
+  const mids=['Next, they continued their journey to','After that, they made their way to','From there, they wandered over to','They then ventured on to'];
+  for(let i=2;i<names.length;i++){ out+=' '+pick(mids)+` ${names[i]}.`; }
+  return out;
+}
+function feelingSentence(ctx,m){
+  const f=feelingByKey(m.feeling);
+  const adj=f?f.adj:'felt wonderful';
+  return `${ctx.name} ${adj}.`;
+}
+function generateStoryForTone(adventure,tone){
+  const name=(typeof state!=='undefined' && state.childName)?state.childName:'the explorer';
+  const ctx={name,title:adventure.title,month:new Date(adventure.createdAt).toLocaleDateString('en-US',{month:'long'})};
+  const opener=pick(OPENERS[tone])(ctx);
+  const memOrder=shuffle(adventure.memories.filter(m=>m.type!=='feeling'));
+  const sentences=memOrder.map(m=>{
+    if(m.type==='note') return noteSentence(ctx,m);
+    if(m.type==='photo') return photoSentence(ctx,m);
+    if(m.type==='voice') return voiceSentence(ctx,m);
+    if(m.type==='location') return locationSentence(ctx,m);
+    return '';
+  }).filter(Boolean);
+  const feelingMem=adventure.memories.find(m=>m.type==='feeling');
+  const photoCount=adventure.memories.filter(m=>m.type==='photo').length;
+  let body=opener+' ';
+  const stopsLine=buildStopsNarrative(ctx,adventure.stops);
+  if(stopsLine) body+=stopsLine+' ';
+  if(feelingMem) body+=feelingSentence(ctx,feelingMem)+' ';
+  body+=sentences.join(' ');
+  if(photoCount>1) body+=` They snapped ${photoCount} photos to remember it all.`;
+  const closer=pick(CLOSERS[tone])(ctx);
+  body+='<br><br>'+closer;
+  return { title: adventure.title+' '+adventure.emoji, text: body, generatedAt:new Date().toISOString() };
+}
+function generateStorySet(adventure){
+  return { bedtime:generateStoryForTone(adventure,'bedtime'), adventure:generateStoryForTone(adventure,'adventure'), educational:generateStoryForTone(adventure,'educational') };
+}
+
+// ───────── STATE ─────────
+let state = {
+  adventures: [],
+  stamps: {firstAdventure:false,firstStory:false,firstVoice:false,firstPhoto:false},
+  childName: 'Mia',
+  feedback: [],
+  activeAdventureId: null,
+  detailAdventureId: null,
+  detailSubview: null,
+  storyTab: 'bedtime',
+  expandedVault: null,
+  recording: {active:false,seconds:0,timer:null,real:false,mediaRecorder:null,chunks:[],advId:null},
+  tracker: {advId:null,intervalId:null,pendingStop:null},
+};
+let pendingPhotoAdv = null;
+
+function safeParse(json,fallback){ try{ const v=JSON.parse(json); return v===null?fallback:v; }catch(e){ return fallback; } }
+function saveAdventures(){ try{ localStorage.setItem(LS_KEYS.adventures, JSON.stringify(state.adventures)); }catch(e){ showToast('⚠️ Storage is full — try removing an old photo'); } }
+function saveStamps(){ localStorage.setItem(LS_KEYS.stamps, JSON.stringify(state.stamps)); }
+function saveChildName(){ localStorage.setItem(LS_KEYS.childName, state.childName); }
+function saveFeedback(){ localStorage.setItem(LS_KEYS.feedback, JSON.stringify(state.feedback)); }
+
+function formatDateLabel(d){ return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
+function formatTime(s){ s=Math.max(0,Math.round(s||0)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+
+function buildExampleAdventure(){
+  const created=new Date(Date.now()-28*864e5);
+  const adv={
+    id:'example_dino', title:'The Big Dinosaur Day', emoji:'🦕', theme:'dinosaur', isExample:true,
+    createdAt:created.toISOString(), dateLabel:formatDateLabel(created), trackerEnabled:false,
+    stops:[
+      {id:'ex_s1',label:'Home',emoji:'🏠',lat:47.2529,lon:-122.4443,capturedAt:created.toISOString()},
+      {id:'ex_s2',label:'Point Defiance Zoo',emoji:'🦁',lat:47.3052,lon:-122.5126,capturedAt:created.toISOString()},
+      {id:'ex_s3',label:'Tacoma Waterfront',emoji:'🌊',lat:47.2614,lon:-122.4438,capturedAt:created.toISOString()},
+    ],
+    memories:[
+      {id:'ex_m1',type:'location',title:'Tacoma Waterfront',location:'Tacoma Waterfront',createdAt:created.toISOString()},
+      {id:'ex_m2',type:'note',title:'Memory note',note:'We found a GIANT dinosaur statue outside the museum, and Mia walked right up and said hello!',createdAt:created.toISOString()},
+      {id:'ex_m3',type:'feeling',title:'Feeling: Brave',feeling:'brave',createdAt:created.toISOString()},
+      {id:'ex_m4',type:'photo',title:'Dino Statue',photoData:null,createdAt:created.toISOString()},
+      {id:'ex_m5',type:'voice',title:'Train Sound',duration:42,audioData:null,simulated:true,createdAt:created.toISOString()},
+    ],
+    storiesByTone:{}, story:null,
+  };
+  adv.storiesByTone=generateStorySet(adv);
+  adv.story=adv.storiesByTone.bedtime;
+  return adv;
+}
+
+function loadState(){
+  state.childName = localStorage.getItem(LS_KEYS.childName) || 'Mia';
+  state.stamps = safeParse(localStorage.getItem(LS_KEYS.stamps), {firstAdventure:false,firstStory:false,firstVoice:false,firstPhoto:false});
+  state.feedback = safeParse(localStorage.getItem(LS_KEYS.feedback), []);
+  const storedAdv = safeParse(localStorage.getItem(LS_KEYS.adventures), null);
+  if(storedAdv===null){
+    state.adventures=[buildExampleAdventure()];
+    saveAdventures();
+  } else {
+    state.adventures=storedAdv;
+  }
+}
+
+// ───────── TOAST / MODAL ─────────
+function showToast(msg,dur=2200){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._hideTimer);
+  t._hideTimer=setTimeout(()=>t.classList.remove('show'),dur);
+}
+function openModal(html){
+  document.getElementById('modalContent').innerHTML=html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function refreshDetail(){
+  if(state.detailAdventureId) document.getElementById('modalContent').innerHTML=buildAdventureDetailHtml(state.detailAdventureId);
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  state.detailAdventureId=null; state.detailSubview=null;
+}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalOverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modalOverlay')) closeModal();
+});
+
+// ───────── CLOCK / GREETING ─────────
+function updateClock(){
+  const now=new Date();
+  let h=now.getHours(),m=now.getMinutes(); h=h%12||12;
+  document.getElementById('clockDisplay').textContent=`${h}:${String(m).padStart(2,'0')}`;
+  const hr=now.getHours();
+  const greet=hr<12?`Good morning, ${state.childName}! 🌞`:hr<17?`Good afternoon, ${state.childName}! ☀️`:`Good evening, ${state.childName}! 🌙`;
+  document.getElementById('homeGreeting').textContent=greet;
+  document.getElementById('heroDateTag').textContent='🗓 '+formatDateLabel(now);
+}
+
+// ───────── POLAROID / SWIRL / STAMP ANIMATIONS ─────────
+function animatePolaroid(emoji){
+  const layer=document.getElementById('animLayer');
+  const el=document.createElement('div');
+  el.className='polaroid-fly'; el.textContent=emoji;
+  el.style.left=Math.random()*200+80+'px'; el.style.top='100px';
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(),1600);
+}
+function animateMemorySwirl(onDone){
+  const layer=document.getElementById('animLayer');
+  const overlay=document.createElement('div');
+  overlay.className='story-generate-overlay';
+  overlay.innerHTML=`<div class="story-book-anim">📖</div><div class="gen-text">Weaving your memories<br>into a story…</div><div class="gen-dots"><span></span><span></span><span></span></div>`;
+  const particles=['📸','🎤','📍','😊','✏️','⭐'];
+  particles.forEach((p,i)=>{
+    const el=document.createElement('div');
+    el.className='memory-swirl-particle'; el.textContent=p;
+    const angle=(i/particles.length)*360, r=80;
+    el.style.left=`calc(50% + ${Math.cos(angle*Math.PI/180)*r}px)`;
+    el.style.top=`calc(40% + ${Math.sin(angle*Math.PI/180)*r}px)`;
+    el.style.setProperty('--tx',`${Math.cos(angle*Math.PI/180)*-120}px`);
+    el.style.setProperty('--ty',`${Math.sin(angle*Math.PI/180)*-120}px`);
+    el.style.animationDelay=i*0.12+'s';
+    overlay.appendChild(el);
+  });
+  layer.appendChild(overlay);
+  setTimeout(()=>{overlay.remove();onDone();},2200);
+}
+function celebrateStamp(stamp){
+  const layer=document.getElementById('animLayer');
+  const overlay=document.createElement('div');
+  overlay.className='stamp-overlay';
+  const burstColors=['#FFD95A','#67C7F5','#7BC96F','#FFB347','#FF6B6B'];
+  let bursts='';
+  for(let i=0;i<12;i++){
+    const angle=(i/12)*360, r=90+Math.random()*40;
+    const bx=Math.cos(angle*Math.PI/180)*r, by=Math.sin(angle*Math.PI/180)*r;
+    const color=burstColors[i%burstColors.length];
+    bursts+=`<div class="burst-particle" style="background:${color};--bx:${bx}px;--by:${by}px;animation-delay:${i*0.04}s;width:${8+Math.random()*6}px;height:${8+Math.random()*6}px;"></div>`;
+  }
+  overlay.innerHTML=`<div class="stamp-burst">${bursts}</div><div class="stamp-anim-inner"><span class="stamp-anim-emoji">${stamp.emoji}</span><div class="stamp-anim-text">${stamp.name}</div><div class="stamp-anim-sub">🎉 New stamp earned!</div></div>`;
+  layer.appendChild(overlay);
+  overlay.addEventListener('click',()=>overlay.remove());
+  setTimeout(()=>overlay.remove(),3500);
+}
+function checkStamp(key){
+  if(state.stamps[key]) return;
+  state.stamps[key]=true; saveStamps();
+  const def=STAMP_DEFS.find(s=>s.key===key);
+  setTimeout(()=>{ celebrateStamp(def); renderPassport(); },450);
+}
+
+// ───────── NAVIGATION ─────────
+function switchScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const sc=document.getElementById('screen-'+name);
+  const ni=document.querySelector(`.nav-item[data-screen="${name}"]`);
+  if(sc) sc.classList.add('active');
+  if(ni) ni.classList.add('active');
+  if(name==='adventures') renderAdventuresList();
+  if(name==='story') renderStoryScreen();
+  if(name==='passport') renderPassport();
+  if(name==='vault') renderVault();
+}
+document.getElementById('mainNav').addEventListener('click',e=>{
+  const item=e.target.closest('.nav-item');
+  if(item) switchScreen(item.dataset.screen);
+});
+document.getElementById('app').addEventListener('click',e=>{
+  const navBtn=e.target.closest('[data-nav]');
+  if(navBtn){ switchScreen(navBtn.dataset.nav); return; }
+  const qaNew=e.target.closest('[data-action="qa-new"]');
+  if(qaNew){ openCreateAdventureModal(); return; }
+});
+document.getElementById('feedbackFab').addEventListener('click',openFeedbackModal);
+document.getElementById('heroAvatar').addEventListener('click',openChildNameModal);
+document.getElementById('pacPhotoBtn').addEventListener('click',()=>{
+  const today=getTodaysAdventure();
+  if(today) openAdventureDetail(today.id); else openCreateAdventureModal('photo');
+});
+document.getElementById('pacVoiceBtn').addEventListener('click',()=>{
+  const today=getTodaysAdventure();
+  if(today){ openAdventureDetail(today.id); setTimeout(()=>toggleRecording(today.id),300); }
+  else openCreateAdventureModal('voice');
+});
+document.getElementById('newAdventureBtnTop').addEventListener('click',()=>openCreateAdventureModal());
+
+// ───────── ADVENTURE / MEMORY CRUD ─────────
+function getTodaysAdventure(){
+  const todayLabel=formatDateLabel(new Date());
+  return state.adventures.find(a=>!a.isExample && a.dateLabel===todayLabel) || null;
+}
+function createAdventure(title){
+  title=(title||'').trim() || "Today's Adventure";
+  const {emoji,theme}=inferTheme(title);
+  const now=new Date();
+  const adv={id:'adv_'+Date.now()+Math.random().toString(36).slice(2,5), title, emoji, theme, isExample:false,
+    createdAt:now.toISOString(), dateLabel:formatDateLabel(now), memories:[], storiesByTone:{}, story:null};
+  state.adventures.unshift(adv);
+  saveAdventures();
+  state.activeAdventureId=adv.id;
+  checkStamp('firstAdventure');
+  renderHome();
+  return adv;
+}
+function addMemory(advId, partial){
+  const adv=state.adventures.find(a=>a.id===advId); if(!adv) return;
+  const mem=Object.assign({id:'m_'+Date.now()+Math.random().toString(36).slice(2,6), createdAt:new Date().toISOString()}, partial);
+  adv.memories.push(mem);
+  saveAdventures();
+  state.activeAdventureId=advId;
+  renderHome();
+}
+function deleteMemory(advId,memId){
+  const adv=state.adventures.find(a=>a.id===advId); if(!adv) return;
+  adv.memories=adv.memories.filter(m=>m.id!==memId);
+  saveAdventures(); refreshDetail(); renderHome();
+}
+function deleteAdventure(advId){
+  if(!confirm("Delete this adventure and its memories? This can't be undone.")) return;
+  if(state.tracker.advId===advId && state.tracker.intervalId) clearInterval(state.tracker.intervalId);
+  if(state.tracker.advId===advId) state.tracker.advId=null;
+  if(state.tracker.pendingStop && state.tracker.pendingStop.advId===advId) state.tracker.pendingStop=null;
+  state.adventures=state.adventures.filter(a=>a.id!==advId);
+  saveAdventures(); closeModal(); renderAdventuresList(); renderHome(); renderVault(); renderPassport();
+}
+function runGenerate(advId, switchToStory){
+  const adv=state.adventures.find(a=>a.id===advId); if(!adv) return;
+  if(adv.memories.length===0){ showToast('Add a memory first! 💭'); return; }
+  if(document.getElementById('modalOverlay').classList.contains('open')) closeModal();
+  animateMemorySwirl(()=>{
+    adv.storiesByTone=generateStorySet(adv);
+    adv.story=adv.storiesByTone[state.storyTab]||adv.storiesByTone.bedtime;
+    saveAdventures();
+    checkStamp('firstStory');
+    state.activeAdventureId=advId;
+    renderHome(); renderVault();
+    if(switchToStory) switchScreen('story');
+    renderStoryScreen();
+    showToast('✨ Your story has been woven! 📖');
+  });
+}
+
+// ───────── PHOTO CAPTURE ─────────
+document.getElementById('fileCamera').addEventListener('change', e=>handlePhotoFile(e,'Photo'));
+document.getElementById('fileUpload').addEventListener('change', e=>handlePhotoFile(e,'Uploaded Photo'));
+function handlePhotoFile(e,label){
+  const file=e.target.files[0]; e.target.value=''; if(!file||!pendingPhotoAdv) return;
+  compressImage(file,640,0.72,(dataUrl)=>{
+    addMemory(pendingPhotoAdv,{type:'photo',title:label,photoData:dataUrl});
+    checkStamp('firstPhoto');
+    refreshDetail();
+    showToast(`📸 ${label} saved!`);
+  });
+}
+function compressImage(file,maxW,quality,cb){
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const scale=Math.min(1,maxW/img.width);
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.max(1,Math.round(img.width*scale));
+      canvas.height=Math.max(1,Math.round(img.height*scale));
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      cb(canvas.toDataURL('image/jpeg',quality));
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ───────── VOICE RECORDING (real if available, simulated fallback) ─────────
+function toggleRecording(advId){
+  if(state.recording.active) stopRecording(advId); else startRecording(advId);
+}
+function startRecording(advId){
+  state.recording.active=true; state.recording.seconds=0; state.recording.advId=advId; state.recording.real=false;
+  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder){
+    navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+      try{
+        const mr=new MediaRecorder(stream);
+        state.recording.real=true; state.recording.mediaRecorder=mr; state.recording.chunks=[];
+        mr.ondataavailable=ev=>{ if(ev.data && ev.data.size>0) state.recording.chunks.push(ev.data); };
+        mr.start();
+      }catch(err){ state.recording.real=false; }
+    }).catch(()=>{ state.recording.real=false; });
+  }
+  state.recording.timer=setInterval(()=>{
+    state.recording.seconds++;
+    const el=document.getElementById('recTimerDetail');
+    if(el) el.textContent=formatTime(state.recording.seconds);
+  },1000);
+  refreshDetail();
+}
+function stopRecording(advId){
+  clearInterval(state.recording.timer);
+  const secs=state.recording.seconds;
+  const finish=(audioData)=>{
+    addMemory(advId,{type:'voice',title:'Voice Memory',duration:secs,audioData:audioData||null,simulated:!audioData});
+    state.recording.active=false; state.recording.real=false; state.recording.mediaRecorder=null; state.recording.chunks=[]; state.recording.advId=null;
+    checkStamp('firstVoice');
+    refreshDetail();
+    showToast(`🎤 Voice memory saved (${formatTime(secs)})`);
+  };
+  if(state.recording.real && state.recording.mediaRecorder){
+    const mr=state.recording.mediaRecorder;
+    mr.onstop=()=>{
+      try{
+        const blob=new Blob(state.recording.chunks,{type:mr.mimeType||'audio/webm'});
+        if(blob.size>900000){ finish(null); }
+        else{
+          const reader=new FileReader();
+          reader.onload=()=>finish(reader.result);
+          reader.onerror=()=>finish(null);
+          reader.readAsDataURL(blob);
+        }
+      }catch(err){ finish(null); }
+      mr.stream.getTracks().forEach(t=>t.stop());
+    };
+    try{ mr.stop(); }catch(err){ finish(null); }
+  } else { finish(null); }
+}
+
+// ───────── LOCATION ─────────
+function useGpsLocation(){
+  if(!navigator.geolocation){ showToast('GPS is not available on this device'); return; }
+  showToast('📡 Finding your location…');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude.toFixed(3), lon=pos.coords.longitude.toFixed(3);
+    const input=document.getElementById('locationInput');
+    if(input) input.value=`Lat ${lat}, Long ${lon}`;
+  }, ()=>showToast("Couldn't access location — type it in instead 📍"));
+}
+
+// ───────── ADVENTURE TRACKER (lightweight GPS, on-device only) ─────────
+const TRACKER_INTERVAL_MS = 20000;   // how often we check location while tracking is on
+const STOP_DISTANCE_METERS = 120;    // how far you must move before we flag a new stop
+function haversineMeters(lat1,lon1,lat2,lon2){
+  const R=6371000, toRad=d=>d*Math.PI/180;
+  const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function startTracking(advId){
+  if(!navigator.geolocation){ showToast('GPS is not available on this device'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const adv=state.adventures.find(a=>a.id===advId); if(!adv) return;
+      adv.trackerEnabled=true; saveAdventures();
+      state.tracker.advId=advId;
+      handleTrackerReading(advId,pos);
+      state.tracker.intervalId=setInterval(()=>captureTrackerPoint(advId), TRACKER_INTERVAL_MS);
+      refreshDetail();
+      renderAdventuresList(); renderHome();
+      showToast('🛰️ Adventure Tracker is on!');
+    },
+    ()=>showToast("Couldn't access your location — check your browser's permissions 📍"),
+    {enableHighAccuracy:false, maximumAge:10000, timeout:8000}
+  );
+}
+function stopTracking(advId){
+  if(state.tracker.intervalId) clearInterval(state.tracker.intervalId);
+  state.tracker.intervalId=null;
+  if(state.tracker.advId===advId) state.tracker.advId=null;
+  const adv=state.adventures.find(a=>a.id===advId);
+  if(adv){ adv.trackerEnabled=false; saveAdventures(); }
+  refreshDetail();
+  renderAdventuresList(); renderHome();
+  showToast('⚪ Adventure Tracker turned off');
+}
+function captureTrackerPoint(advId){
+  navigator.geolocation.getCurrentPosition(pos=>handleTrackerReading(advId,pos), ()=>{}, {enableHighAccuracy:false,maximumAge:15000,timeout:8000});
+}
+function handleTrackerReading(advId,pos){
+  const adv=state.adventures.find(a=>a.id===advId); if(!adv) return;
+  const lat=pos.coords.latitude, lon=pos.coords.longitude;
+  if(!adv.stops) adv.stops=[];
+  const last=adv.stops[adv.stops.length-1];
+  if(!last){
+    adv.stops.push({id:'stop_'+Date.now(), label:'Home', emoji:'🏠', lat, lon, capturedAt:new Date().toISOString()});
+    saveAdventures(); refreshDetail();
+    return;
+  }
+  if(state.tracker.pendingStop && state.tracker.pendingStop.advId===advId) return;
+  const dist=haversineMeters(last.lat,last.lon,lat,lon);
+  if(dist>=STOP_DISTANCE_METERS){
+    state.tracker.pendingStop={advId,lat,lon,emoji:'📍',suggestedName:'Stop '+(adv.stops.length+1)};
+    refreshDetail();
+    showToast('📍 New stop detected!');
+  }
+}
+function pendingStopHtml(advId){
+  const ps=state.tracker.pendingStop;
+  if(!(ps && ps.advId===advId)) return '';
+  const quickEmojis=['📍','🏛️','🦁','🌊','🐠','🎡','🏖️','🍦','🌳','🎨','🚗','🍽️'];
+  return `<div class="stop-prompt">
+    <div class="stop-prompt-title">📍 New stop detected! What should we call it?</div>
+    <div class="quick-title-row">${quickEmojis.map(em=>`<div class="quick-title-chip ${ps.emoji===em?'sel':''}" data-action="pick-stop-emoji" data-emoji="${em}">${em}</div>`).join('')}</div>
+    <input id="stopNameInput" type="text" class="field-input" value="${ps.suggestedName}" style="margin-bottom:8px;">
+    <div style="display:flex;gap:8px;">
+      <button class="modal-btn secondary" style="margin-top:0;flex:1;" data-action="skip-stop" data-adv="${advId}">Skip</button>
+      <button class="modal-btn save" style="margin-top:0;flex:1;" data-action="save-stop" data-adv="${advId}">💾 Save Stop</button>
+    </div>
+  </div>`;
+}
+
+// ───────── ADVENTURE DETAIL MODAL ─────────
+function openAdventureDetail(advId){
+  state.detailAdventureId=advId; state.detailSubview=null;
+  openModal(buildAdventureDetailHtml(advId));
+}
+function buildAdventureDetailHtml(advId){
+  const adv=state.adventures.find(a=>a.id===advId); if(!adv) return '<div>Adventure not found.</div>';
+  if(state.detailSubview==='feeling') return feelingSubviewHtml(advId);
+  if(state.detailSubview==='note') return noteSubviewHtml(advId);
+  if(state.detailSubview==='location') return locationSubviewHtml(advId);
+  const recordingHere = state.recording.active && state.recording.advId===advId;
+  return `
+    <div class="modal-title">${adv.emoji} ${adv.title}</div>
+    <div class="modal-sub">${adv.dateLabel} · ${adv.memories.length} moment${adv.memories.length===1?'':'s'}${adv.isExample?' · <span class="example-badge">✨ Example</span>':''}</div>
+    <div class="timo-bubble" style="margin:0 0 12px;">
+      <div class="timo-avatar" style="width:36px;height:36px;font-size:20px;">🐢</div>
+      <div class="timo-speech" style="font-size:12px;padding:8px 12px;"><div class="timo-name">Timo says</div>${getTimoMessage(adv)}</div>
+    </div>
+    <div class="tracker-row">
+      <div class="tracker-label">🛰️ Adventure Tracker</div>
+      <div class="tracker-toggle ${adv.trackerEnabled?'on':''}" data-action="toggle-tracker" data-adv="${advId}"><div class="tracker-toggle-knob"></div></div>
+    </div>
+    <div class="tracker-status">${adv.trackerEnabled?'🟢 Tracking Adventure':'⚪ Adventure Tracker Off'}</div>
+    <div class="tracker-privacy">Location tracking only works while Adventure Tracker is enabled and all data remains on your device.</div>
+    ${pendingStopHtml(advId)}
+    ${adv.stops && adv.stops.length? `<div class="section-row" style="padding:0 0 2px;"><div class="section-title">🗺️ Adventure Timeline</div></div>
+    <div class="timeline-row">${adv.stops.map((s,i)=>`${i>0?'<div class="timeline-arrow">→</div>':''}<div class="timeline-stop" data-action="delete-stop" data-stop="${s.id}" data-adv="${advId}" title="Tap to remove">${s.emoji||'📍'} ${s.label}</div>`).join('')}</div>`:''}
+    <div class="capture-grid">
+      <div class="cap-card sky" data-action="photo-camera" data-adv="${advId}"><div class="cap-icon">📸</div><div class="cap-name">Take Photo</div><div class="cap-desc">Snap a moment right now</div></div>
+      <div class="cap-card sky" data-action="photo-upload" data-adv="${advId}"><div class="cap-icon">🖼️</div><div class="cap-name">Upload Photo</div><div class="cap-desc">Choose from your library</div></div>
+      <div class="cap-card green ${recordingHere?'recording':''}" data-action="voice" data-adv="${advId}">
+        <div class="cap-icon">🎤</div><div class="cap-name">${recordingHere?'Stop Recording':'Record Voice'}</div>
+        <div class="cap-desc">${recordingHere?'Tap to stop':'Tap to start recording'}</div>
+        ${recordingHere?`<div class="rec-timer" id="recTimerDetail">${formatTime(state.recording.seconds)}</div>`:''}
+      </div>
+      <div class="cap-card brown" data-action="open-location" data-adv="${advId}"><div class="cap-icon">📍</div><div class="cap-name">Add Location</div><div class="cap-desc">Where did this happen?</div></div>
+      <div class="cap-card yellow" data-action="open-feeling" data-adv="${advId}"><div class="cap-icon">😊</div><div class="cap-name">Select Feeling</div><div class="cap-desc">How did it feel?</div></div>
+      <div class="cap-card sky" data-action="open-note" data-adv="${advId}"><div class="cap-icon">✏️</div><div class="cap-name">Add Note</div><div class="cap-desc">Write what happened</div></div>
+    </div>
+    ${adv.memories.length? `<div class="section-row" style="padding:14px 0 4px;"><div class="section-title">Memories so far</div></div>
+    <div class="memory-list">${adv.memories.map(m=>memoryRowHtml(m,advId)).join('')}</div>`:`<div class="empty-state" style="padding:24px 4px;"><div class="empty-emoji">🌟</div><div class="empty-sub">No memories yet — tap something above to add your first one!</div></div>`}
+    <button class="gen-story-btn" style="margin:14px 0 0;width:100%;" data-action="generate-story" data-adv="${advId}">✨ Generate Story</button>
+    ${adv.isExample? '' : `<div class="modal-btn danger" data-action="delete-adventure" data-adv="${advId}" style="text-align:center;">🗑 Delete this adventure</div>`}
+  `;
+}
+function memoryRowHtml(m,advId){
+  const icons={photo:'📸',voice:'🎤',location:'📍',feeling:'😊',note:'✏️'};
+  let label=m.title||'Memory';
+  if(m.type==='note') label=(m.note||'').slice(0,44)+((m.note||'').length>44?'…':'');
+  if(m.type==='voice') label=`Voice memory · ${formatTime(m.duration||0)}${m.audioData?'':' (preview unavailable)'}`;
+  let media='';
+  if(m.type==='photo' && m.photoData) media=`<img src="${m.photoData}" style="width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0;">`;
+  else if(m.type==='voice' && m.audioData) media=`<audio controls src="${m.audioData}" style="height:28px;max-width:100px;flex-shrink:0;"></audio>`;
+  else media=`<div class="memory-row-icon">${icons[m.type]||'⭐'}</div>`;
+  return `<div class="memory-row">${media}<div class="memory-row-label">${label}</div><div class="vault-act" data-action="delete-memory" data-mem="${m.id}" data-adv="${advId}">✕</div></div>`;
+}
+function feelingSubviewHtml(advId){
+  return `<div class="modal-title">😊 How did it feel?</div>
+    <div class="modal-sub">Pick the feeling that matches this moment</div>
+    <div class="feeling-grid">${FEELING_OPTIONS.map(f=>`<div class="feeling-opt" data-action="pick-feeling" data-feeling="${f.key}" data-adv="${advId}"><div class="feeling-emoji">${f.emoji}</div><div class="feeling-label">${f.label}</div></div>`).join('')}</div>
+    <div class="subview-back" data-action="back-subview" data-adv="${advId}">← Back</div>`;
+}
+function noteSubviewHtml(advId){
+  return `<div class="modal-title">✏️ Add a Memory Note</div>
+    <div class="modal-sub">What happened? e.g. "Mia lost her first tooth."</div>
+    <textarea id="noteInput" class="field-textarea" rows="4" placeholder="Write the memory..."></textarea>
+    <button class="modal-btn save" data-action="save-note" data-adv="${advId}">💾 Save Memory Note</button>
+    <div class="subview-back" data-action="back-subview" data-adv="${advId}">← Back</div>`;
+}
+function locationSubviewHtml(advId){
+  return `<div class="modal-title">📍 Add a Location</div>
+    <div class="modal-sub">Where did this happen?</div>
+    <input id="locationInput" type="text" class="field-input" placeholder="e.g. Tacoma Aquarium" style="margin-bottom:8px;">
+    <button class="modal-btn secondary" data-action="use-gps" data-adv="${advId}">📡 Use My Location</button>
+    <button class="modal-btn save" data-action="save-location" data-adv="${advId}">💾 Save Location</button>
+    <div class="subview-back" data-action="back-subview" data-adv="${advId}">← Back</div>`;
+}
+
+// ───────── CREATE ADVENTURE / FEEDBACK / CHILD NAME MODALS ─────────
+function openCreateAdventureModal(autoAction){
+  const quickTitles=['Zoo Day','Beach Day','Birthday Party','Camping Trip','First Day of School','Family Dinner','Road Trip','Aquarium Visit'];
+  openModal(`
+    <div class="modal-title">📸 Start a New Adventure</div>
+    <div class="modal-sub">What should we call this adventure?</div>
+    <input id="newAdvTitle" type="text" class="field-input" placeholder="e.g. Trip to the Aquarium" style="margin-bottom:10px;">
+    <div class="quick-title-row">${quickTitles.map(t=>`<div class="quick-title-chip" data-action="fill-title" data-title="${t}">${t}</div>`).join('')}</div>
+    <button class="modal-btn save" data-action="confirm-create-adventure" data-auto="${autoAction||''}">✨ Start Adventure</button>
+  `);
+}
+function openFeedbackModal(){
+  openModal(`
+    <div class="modal-title">💭 Tell Us What You Think</div>
+    <div class="modal-sub">Your feedback helps make Travel Time Stories better for every family.</div>
+    <textarea id="feedbackInput" class="field-textarea" rows="5" placeholder="What's working? What's confusing? What would you love to see?"></textarea>
+    <button class="modal-btn save" data-action="submit-feedback">💌 Send Feedback</button>
+  `);
+}
+function openChildNameModal(){
+  openModal(`
+    <div class="modal-title">👧 Who's the star of the stories?</div>
+    <div class="modal-sub">This name will appear in every adventure.</div>
+    <input id="childNameInput" type="text" class="field-input" value="${state.childName}" style="margin-bottom:10px;">
+    <button class="modal-btn save" data-action="save-child-name">💾 Save Name</button>
+  `);
+}
+
+// ───────── MODAL ACTION DELEGATION ─────────
+document.getElementById('modalOverlay').addEventListener('click', e=>{
+  const t=e.target.closest('[data-action]'); if(!t) return;
+  const action=t.dataset.action;
+  const advId=t.dataset.adv || state.detailAdventureId;
+  switch(action){
+    case 'photo-camera': pendingPhotoAdv=advId; document.getElementById('fileCamera').click(); break;
+    case 'photo-upload': pendingPhotoAdv=advId; document.getElementById('fileUpload').click(); break;
+    case 'voice': toggleRecording(advId); break;
+    case 'open-feeling': state.detailSubview='feeling'; refreshDetail(); break;
+    case 'open-note': state.detailSubview='note'; refreshDetail(); break;
+    case 'open-location': state.detailSubview='location'; refreshDetail(); break;
+    case 'back-subview': state.detailSubview=null; refreshDetail(); break;
+    case 'pick-feeling': {
+      const f=feelingByKey(t.dataset.feeling);
+      addMemory(advId,{type:'feeling',title:'Feeling: '+f.label,feeling:f.key});
+      state.detailSubview=null; refreshDetail();
+      showToast(`${f.emoji} Feeling added!`);
+      break;
+    }
+    case 'save-note': {
+      const val=document.getElementById('noteInput').value.trim();
+      if(!val){ showToast('Write a little something first! ✏️'); return; }
+      addMemory(advId,{type:'note',title:'Memory note',note:val});
+      state.detailSubview=null; refreshDetail();
+      showToast('✏️ Memory note saved!');
+      break;
+    }
+    case 'save-location': {
+      const val=document.getElementById('locationInput').value.trim();
+      if(!val){ showToast('Type a place name first! 📍'); return; }
+      addMemory(advId,{type:'location',title:val,location:val});
+      state.detailSubview=null; refreshDetail();
+      showToast('📍 Location added!');
+      break;
+    }
+    case 'use-gps': useGpsLocation(); break;
+    case 'toggle-tracker': {
+      const adv=state.adventures.find(a=>a.id===advId); if(!adv) return;
+      if(adv.trackerEnabled) stopTracking(advId); else startTracking(advId);
+      break;
+    }
+    case 'pick-stop-emoji': {
+      if(state.tracker.pendingStop) state.tracker.pendingStop.emoji=t.dataset.emoji;
+      refreshDetail();
+      break;
+    }
+    case 'skip-stop': state.tracker.pendingStop=null; refreshDetail(); break;
+    case 'save-stop': {
+      const ps=state.tracker.pendingStop; if(!ps) return;
+      const adv=state.adventures.find(a=>a.id===ps.advId); if(!adv) return;
+      const nameVal=(document.getElementById('stopNameInput').value||'').trim() || ps.suggestedName;
+      if(!adv.stops) adv.stops=[];
+      adv.stops.push({id:'stop_'+Date.now(), label:nameVal, emoji:ps.emoji||'📍', lat:ps.lat, lon:ps.lon, capturedAt:new Date().toISOString()});
+      saveAdventures();
+      state.tracker.pendingStop=null;
+      refreshDetail();
+      showToast(`${ps.emoji||'📍'} ${nameVal} added to your timeline!`);
+      break;
+    }
+    case 'delete-stop': {
+      if(!confirm('Remove this stop from the timeline?')) return;
+      const adv=state.adventures.find(a=>a.id===t.dataset.adv); if(!adv) return;
+      adv.stops=(adv.stops||[]).filter(s=>s.id!==t.dataset.stop);
+      saveAdventures(); refreshDetail();
+      break;
+    }
+    case 'delete-memory': deleteMemory(t.dataset.adv, t.dataset.mem); break;
+    case 'generate-story': runGenerate(advId,true); break;
+    case 'delete-adventure': deleteAdventure(advId); break;
+    case 'fill-title': document.getElementById('newAdvTitle').value=t.dataset.title; break;
+    case 'confirm-create-adventure': {
+      const titleVal=document.getElementById('newAdvTitle').value.trim() || "Today's Adventure";
+      const auto=t.dataset.auto;
+      const adv=createAdventure(titleVal);
+      closeModal();
+      setTimeout(()=>{
+        openAdventureDetail(adv.id);
+        if(auto==='voice') setTimeout(()=>toggleRecording(adv.id),350);
+        if(auto==='photo') setTimeout(()=>{ pendingPhotoAdv=adv.id; document.getElementById('fileCamera').click(); },350);
+      },180);
+      break;
+    }
+    case 'submit-feedback': {
+      const v=document.getElementById('feedbackInput').value.trim();
+      if(!v){ showToast('Type a quick note first! 💭'); return; }
+      state.feedback.push({text:v,date:new Date().toISOString()});
+      saveFeedback(); closeModal();
+      showToast('💌 Thanks for the feedback!');
+      break;
+    }
+    case 'save-child-name': {
+      const v=document.getElementById('childNameInput').value.trim() || 'Mia';
+      state.childName=v; saveChildName(); closeModal();
+      updateClock(); renderHome();
+      showToast(`Saved! Stories will star ${v} 🌟`);
+      break;
+    }
+  }
+});
+
+// ───────── HOME RENDER ─────────
+function renderHome(){
+  renderTodayCard();
+  renderHomeMoments();
+  renderTimoHome();
+  renderOnThisDay();
+}
+function renderTodayCard(){
+  const wrap=document.getElementById('storyReadyWrap');
+  const today=getTodaysAdventure();
+  if(!today){ wrap.innerHTML=''; return; }
+  const hasStory=!!today.story;
+  wrap.innerHTML=`
+    <div class="story-ready-card ${hasStory?'magical':''}" data-advcard="${today.id}">
+      ${hasStory?'<div class="sparkle s1">✨</div><div class="sparkle s2">⭐</div><div class="sparkle s3">✨</div>':''}
+      <div class="ready-badge">${hasStory?'✨ Story Ready!':'📝 In Progress'}</div>
+      <div class="ready-title">${today.title} ${today.emoji}</div>
+      <div class="ready-meta">${today.dateLabel} · ${today.memories.length} moment${today.memories.length===1?'':'s'} captured${today.trackerEnabled?' · <span class="tracking-pill">🟢 Tracking</span>':''}</div>
+      <button class="ready-cta" data-action="today-cta" data-adv="${today.id}" data-hasstory="${hasStory}">${hasStory?'Read Bedtime Story →':'✨ Generate Story →'}</button>
+      <div class="dino-float">${today.emoji}</div>
+    </div>`;
+}
+document.getElementById('storyReadyWrap').addEventListener('click', e=>{
+  const btn=e.target.closest('[data-action="today-cta"]');
+  if(btn){
+    if(btn.dataset.hasstory==='true'){ state.activeAdventureId=btn.dataset.adv; switchScreen('story'); }
+    else { runGenerate(btn.dataset.adv,true); }
+    return;
+  }
+  const card=e.target.closest('[data-advcard]');
+  if(card) openAdventureDetail(card.dataset.advcard);
+});
+function renderHomeMoments(){
+  const today=getTodaysAdventure();
+  const section=document.getElementById('todaysMomentsSection');
+  if(!today || today.memories.length===0){ section.style.display='none'; return; }
+  section.style.display='block';
+  const icons={photo:'📸',voice:'🎤',location:'📍',feeling:'😊',note:'✏️'};
+  document.getElementById('homeMoments').innerHTML = today.memories.map(m=>{
+    let name=m.title||'Memory';
+    if(m.type==='note') name='Memory Note';
+    if(m.type==='voice') name='Voice Memory';
+    return `<div class="moment-chip"><div class="moment-emoji">${icons[m.type]||'⭐'}</div><div><div class="moment-name">${name}</div><div class="moment-type">${m.type}</div></div></div>`;
+  }).join('');
+}
+function renderTimoHome(){
+  const today=getTodaysAdventure();
+  document.querySelector('#timoHome .timo-speech').innerHTML=`<div class="timo-name">Timo says</div>${getTimoMessage(today)}`;
+}
+function renderOnThisDay(){
+  const wrap=document.getElementById('onThisDayWrap');
+  const now=new Date();
+  const matches=state.adventures.filter(a=>{
+    if(a.isExample) return false;
+    const d=new Date(a.createdAt);
+    return d.getDate()===now.getDate() && d.getMonth()===now.getMonth() && d.getFullYear()<now.getFullYear();
+  });
+  if(matches.length===0){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  document.getElementById('otdMemories').innerHTML=matches.map(a=>{
+    const yearsAgo=now.getFullYear()-new Date(a.createdAt).getFullYear();
+    return `<div class="otd-memory-row" data-otd-adv="${a.id}">
+      <div class="otd-mem-icon" style="background:var(--sky-lt);">${a.emoji}</div>
+      <div><div class="otd-mem-title">${a.title}</div><div class="otd-mem-date">${a.dateLabel} · ${yearsAgo} year${yearsAgo>1?'s':''} ago</div></div>
+      <div class="otd-mem-arrow">›</div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('otdMemories').addEventListener('click', e=>{
+  const row=e.target.closest('[data-otd-adv]'); if(!row) return;
+  openAdventureDetail(row.dataset.otdAdv);
+});
+
+// ───────── ADVENTURES SCREEN ─────────
+function renderAdventuresList(){
+  const sorted=[...state.adventures].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const list=document.getElementById('adventuresList');
+  if(sorted.length===0){
+    list.innerHTML=`<div class="empty-state"><div class="empty-emoji">🗂️</div><div class="empty-title">No adventures yet</div><div class="empty-sub">Tap "Start a New Adventure" above to begin.</div></div>`;
+    return;
+  }
+  list.innerHTML=sorted.map(a=>`
+    <div class="vault-card" data-advcard="${a.id}">
+      <div class="vault-icon" style="background:var(--sky-lt);">${a.emoji}</div>
+      <div class="vault-info">
+        <div class="vault-title-text">${a.title}${a.isExample?' <span class="example-badge">✨ Example</span>':''}</div>
+        <div class="vault-date">${a.dateLabel}</div>
+        <div class="vault-mmt">${a.memories.length} moment${a.memories.length===1?'':'s'} ${a.story?'· ✅ Story ready':'· ✏️ Draft'}${a.trackerEnabled?' · <span class="tracking-pill">🟢 Tracking</span>':''}</div>
+      </div>
+    </div>`).join('');
+}
+document.getElementById('adventuresList').addEventListener('click', e=>{
+  const card=e.target.closest('[data-advcard]'); if(!card) return;
+  openAdventureDetail(card.dataset.advcard);
+});
+
+// ───────── STORY SCREEN ─────────
+function renderStoryScreen(){
+  const withContent=state.adventures.filter(a=>a.memories.length>0).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const emptyWrap=document.getElementById('storyEmptyState');
+  const mainWrap=document.getElementById('storyMainContent');
+  if(withContent.length===0){
+    emptyWrap.innerHTML=`<div class="empty-state"><div class="empty-emoji">📖</div><div class="empty-title">No stories yet</div><div class="empty-sub">Capture a memory in an adventure, then come back to weave your first story.</div></div>`;
+    mainWrap.style.display='none';
+    return;
+  }
+  emptyWrap.innerHTML=''; mainWrap.style.display='flex';
+  if(!state.activeAdventureId || !withContent.find(a=>a.id===state.activeAdventureId)) state.activeAdventureId=withContent[0].id;
+  const sel=document.getElementById('storyAdvSelect');
+  sel.innerHTML=withContent.map(a=>`<option value="${a.id}" ${a.id===state.activeAdventureId?'selected':''}>${a.emoji} ${a.title} — ${a.dateLabel}</option>`).join('');
+  renderStoryBody(withContent.find(a=>a.id===state.activeAdventureId));
+}
+function renderStoryBody(adv){
+  if(!adv) return;
+  document.querySelectorAll('.s-tab').forEach(tb=>tb.classList.toggle('active', tb.dataset.tab===state.storyTab));
+  const storyObj = adv.storiesByTone ? adv.storiesByTone[state.storyTab] : null;
+  if(storyObj){
+    document.getElementById('storyTitle').textContent=storyObj.title;
+    document.getElementById('storyBody').innerHTML=storyObj.text;
+    document.getElementById('storyBookMeta').textContent=`${adv.dateLabel} · ${adv.memories.length} moments · Character: ${state.childName}`;
+    document.getElementById('genStoryBtn').textContent='🔄 Regenerate Story';
+    document.getElementById('audioBarWrap').style.display='flex';
+  } else {
+    document.getElementById('storyTitle').textContent=`${adv.title} ${adv.emoji}`;
+    document.getElementById('storyBody').innerHTML=`Your story for "${adv.title}" hasn't been written yet. Tap below and Timo will weave your memories into a tale! ✨`;
+    document.getElementById('storyBookMeta').textContent=`${adv.dateLabel} · ${adv.memories.length} moments`;
+    document.getElementById('genStoryBtn').textContent='✨ Generate New Story Magic!';
+    document.getElementById('audioBarWrap').style.display='none';
+  }
+  stopAudio();
+}
+document.getElementById('storyAdvSelect').addEventListener('change', e=>{
+  state.activeAdventureId=e.target.value;
+  renderStoryBody(state.adventures.find(a=>a.id===state.activeAdventureId));
+});
+document.querySelectorAll('.s-tab').forEach(tab=>{
+  tab.addEventListener('click', function(){
+    state.storyTab=this.dataset.tab;
+    renderStoryBody(state.adventures.find(a=>a.id===state.activeAdventureId));
+  });
+});
+document.getElementById('genStoryBtn').addEventListener('click', ()=> runGenerate(state.activeAdventureId,false));
+document.querySelectorAll('.voice-pill').forEach(pill=>{
+  pill.addEventListener('click', function(){
+    document.querySelectorAll('.voice-pill').forEach(p=>p.classList.remove('active'));
+    this.classList.add('active');
+    const names={lullaby:'Calm Lullaby 🌙',storyteller:'Storyteller 🎭',child:'Child Voice ⭐',owl:'Wise Owl 🦉'};
+    showToast(`Voice: ${names[this.dataset.voice]}`);
+  });
+});
+
+// Simulated narration playback (decorative — see audio-note in UI)
+let audioState={playing:false,seconds:0,duration:204,interval:null};
+function stopAudio(){ audioState.playing=false; clearInterval(audioState.interval); audioState.seconds=0;
+  const btn=document.getElementById('playBtn'); if(btn) btn.textContent='▶';
+  const fill=document.getElementById('audioFill'); if(fill) fill.style.width='0%';
+  const el=document.getElementById('audioElapsed'); if(el) el.textContent='0:00';
+}
+function startAudio(){
+  audioState.playing=true; document.getElementById('playBtn').textContent='⏸';
+  audioState.interval=setInterval(()=>{
+    audioState.seconds=Math.min(audioState.seconds+1,audioState.duration);
+    const pct=(audioState.seconds/audioState.duration)*100;
+    document.getElementById('audioFill').style.width=pct+'%';
+    document.getElementById('audioElapsed').textContent=formatTime(audioState.seconds);
+    if(audioState.seconds>=audioState.duration){
+      stopAudio();
+      showToast('🌙 Story complete! Sweet dreams ✨');
+    }
+  },1000);
+}
+document.getElementById('playBtn').addEventListener('click', ()=>{ if(audioState.playing) stopAudio(); else startAudio(); });
+document.getElementById('audioTrack').addEventListener('click', e=>{
+  const rect=e.currentTarget.getBoundingClientRect();
+  const pct=(e.clientX-rect.left)/rect.width;
+  audioState.seconds=Math.round(pct*audioState.duration);
+  document.getElementById('audioFill').style.width=(pct*100)+'%';
+  document.getElementById('audioElapsed').textContent=formatTime(audioState.seconds);
+});
+
+// ───────── PASSPORT ─────────
+function renderPassport(){
+  document.getElementById('stampsGrid').innerHTML=STAMP_DEFS.map(s=>{
+    const earned=state.stamps[s.key];
+    return `<div class="stamp ${earned?'earned':'locked'}" data-stamp="${s.key}">
+      <div class="stamp-emoji">${s.emoji}</div><div class="stamp-name">${s.name}</div><div class="stamp-status">${earned?'✅':'🔒'}</div>
+    </div>`;
+  }).join('');
+  const earnedCount=STAMP_DEFS.filter(s=>state.stamps[s.key]).length;
+  document.getElementById('statStamps').textContent=earnedCount;
+  document.getElementById('statAdv').textContent=state.adventures.filter(a=>!a.isExample).length;
+  const locSet=new Set(state.adventures.flatMap(a=>a.memories.filter(m=>m.type==='location').map(m=>m.location)));
+  document.getElementById('statLoc').textContent=locSet.size;
+  document.getElementById('passportSub').textContent = earnedCount===0?'Start your first adventure to earn a stamp!':`${earnedCount} of ${STAMP_DEFS.length} stamps earned`;
+}
+document.getElementById('stampsGrid').addEventListener('click', e=>{
+  const el=e.target.closest('.stamp'); if(!el) return;
+  const key=el.dataset.stamp; const def=STAMP_DEFS.find(s=>s.key===key);
+  if(state.stamps[key]) celebrateStamp(def);
+  else { showToast('🔒 '+(STAMP_HINTS[key]||'Keep adventuring!')); el.style.transform='scale(.92)'; setTimeout(()=>el.style.transform='',250); }
+});
+
+// ───────── VAULT ─────────
+function renderVault(){
+  const withStory=state.adventures.filter(a=>a.story).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const list=document.getElementById('vaultList');
+  if(withStory.length===0){
+    list.innerHTML=`<div class="empty-state"><div class="empty-emoji">💾</div><div class="empty-title">No saved stories yet</div><div class="empty-sub">Generate your first story and it will be saved here forever.</div></div>`;
+    return;
+  }
+  list.innerHTML=withStory.map(a=>{
+    const expanded=state.expandedVault===a.id;
+    const photos=a.memories.filter(m=>m.type==='photo' && m.photoData);
+    return `<div class="vault-card ${expanded?'expanded':''}" data-vault="${a.id}">
+      <div class="vault-icon" style="background:var(--yellow-lt);">${a.emoji}</div>
+      <div class="vault-info">
+        <div class="vault-title-text">${a.title}${a.isExample?' <span class="example-badge">✨ Example</span>':''}</div>
+        <div class="vault-date">${a.dateLabel}</div>
+        <div class="vault-mmt">${a.memories.length} moments</div>
+      </div>
+      <div class="vault-acts">
+        <div class="vault-act" data-action="vault-share" data-adv="${a.id}">📤</div>
+        <div class="vault-act" data-action="vault-print" data-adv="${a.id}">🖨️</div>
+      </div>
+      <div class="vault-preview">
+        ${photos.length?`<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">${photos.map(p=>`<img src="${p.photoData}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;">`).join('')}</div>`:''}
+        ${a.story.text}
+      </div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('vaultList').addEventListener('click', e=>{
+  const act=e.target.closest('[data-action]');
+  if(act){
+    e.stopPropagation();
+    if(act.dataset.action==='vault-share') showToast('📤 Sharing is coming soon — for now, screenshot this story!');
+    if(act.dataset.action==='vault-print') showToast('🖨️ Printable storybooks are coming soon!');
+    return;
+  }
+  const card=e.target.closest('[data-vault]'); if(!card) return;
+  const id=card.dataset.vault;
+  state.expandedVault = state.expandedVault===id ? null : id;
+  renderVault();
+});
+
+// ───────── INIT ─────────
+function init(){
+  loadState();
+  updateClock();
+  renderHome();
+  renderAdventuresList();
+  renderStoryScreen();
+  renderPassport();
+  renderVault();
+  setInterval(updateClock,30000);
+}
+init();
+</script>
+</body>
+</html>
