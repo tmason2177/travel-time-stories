@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+<title>Travel Time Stories ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --sky:#67C7F5;--sky2:#4db8f0;--sky-lt:#d4eefa;--sky-xl:#edf7fd;
+  --green:#7BC96F;--green2:#68b85d;--green-lt:#d6f0d2;
+  --yellow:#FFD95A;--yellow2:#f5c832;--yellow-lt:#fff5cc;
+  --cream:#FFFDF5;--paper:#FFF9EC;--sand:#F5EDD8;
+  --brown:#7B5E3A;--brown2:#5c4328;--peach:#FFB347;
+  --text:#2D2416;--text2:#6B5240;--text3:#9C8470;--white:#FFFFFF;
+  --shadow-sm:0 2px 8px rgba(123,94,58,.10);
+  --shadow-md:0 4px 20px rgba(123,94,58,.14);
+  --shadow-lg:0 8px 36px rgba(123,94,58,.18);
+  --radius:20px;--radius-sm:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{
+  background:linear-gradient(135deg,#d4eefa 0%,#d6f0d2 50%,#fff5cc 100%);
+  display:flex;justify-content:center;align-items:center;
+  height:100vh;height:100dvh;
+  font-family:'Baloo 2',cursive;overflow:hidden;
+}
+
+/* ══ PHONE SHELL ══ */
+.phone{width:390px;height:780px;background:var(--cream);border-radius:44px;
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  box-shadow:0 0 0 1px rgba(103,199,245,.25),0 40px 100px rgba(45,36,22,.22),0 0 0 8px rgba(255,255,255,.5);}
+
+/* On a real phone (as opposed to the desktop preview), the app fills the
+   actual device screen edge-to-edge instead of floating as a small
+   fixed-size mock-phone card. 100dvh is the *dynamic* viewport height --
+   the browser recalculates it live whenever the address bar shows/hides or
+   the device rotates, so this is correct on first paint and stays correct,
+   with no JS and no refresh required. The 100vh line above it is a plain
+   fallback for the rare browser that doesn't understand dvh; browsers
+   ignore the whole declaration if they don't recognize the value, so the
+   vh line simply stays in effect for those cases. */
+@media (max-width:700px){
+  .phone{
+    width:100%;height:100vh;height:100dvh;
+    border-radius:0;box-shadow:none;
+  }
+}
+
+/* ══ STATUS BAR ══ */
+.status-bar{height:calc(44px + env(safe-area-inset-top,0px));background:var(--sky);display:flex;align-items:center;
+  justify-content:space-between;padding:0 22px;padding-top:env(safe-area-inset-top,0px);flex-shrink:0;z-index:15;position:relative;}
+.status-time{font-size:15px;font-weight:700;color:var(--white);letter-spacing:-.3px;}
+.status-icons{display:flex;gap:6px;align-items:center;}
+
+/* ══ SCREENS ══ */
+.screens{flex:1;position:relative;overflow:hidden;}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:var(--cream);}
+.screen::-webkit-scrollbar{display:none;}
+.screen.active{display:flex;animation:slideIn .25s cubic-bezier(.34,1.2,.64,1);}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ NAV ══ */
+.nav{height:calc(64px + env(safe-area-inset-bottom,0px));background:var(--white);display:flex;align-items:center;
+  justify-content:space-around;flex-shrink:0;border-top:2px solid var(--sand);z-index:20;position:relative;
+  padding-bottom:env(safe-area-inset-bottom,0px);}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;
+  cursor:pointer;padding:6px 8px;border-radius:14px;transition:all .18s;flex:1;user-select:none;}
+.nav-item:hover{background:var(--sky-xl);}
+.nav-item.active{background:var(--sky-lt);}
+.nav-icon{font-size:20px;line-height:1;transition:transform .2s;}
+.nav-item.active .nav-icon{transform:scale(1.18);}
+.nav-label{font-size:8px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text3);}
+.nav-item.active .nav-label{color:var(--sky2);}
+
+/* ══ SHARED ══ */
+.scroll-area{flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:10px;}
+.scroll-area::-webkit-scrollbar{display:none;}
+.section-row{display:flex;justify-content:space-between;align-items:center;padding:16px 22px 8px;}
+.section-title{font-size:15px;font-weight:800;color:var(--text);}
+.section-link{font-size:12px;font-weight:700;color:var(--sky2);cursor:pointer;}
+.hero-title{font-size:24px;font-weight:800;color:var(--white);line-height:1.1;font-family:'Fredoka One',cursive;}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.85);font-weight:600;margin-top:3px;}
+
+/* ══ TOAST ══ */
+.toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--text);color:var(--white);border-radius:20px;
+  padding:10px 20px;font-size:13px;font-weight:700;white-space:nowrap;
+  opacity:0;transition:all .3s;z-index:200;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ══ MODAL ══ */
+.modal-overlay{position:absolute;inset:0;background:rgba(45,36,22,.5);
+  z-index:50;display:none;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(3px);}
+.modal-overlay.open{display:flex;animation:fadeOv .2s ease;}
+@keyframes fadeOv{from{opacity:0}to{opacity:1}}
+.modal-sheet{background:var(--cream);border-radius:28px 28px 0 0;
+  width:100%;padding:20px 20px 36px;animation:slideUp .28s cubic-bezier(.34,1.1,.64,1);
+  position:relative;max-height:85vh;overflow-y:auto;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--sand);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-size:19px;font-weight:800;color:var(--text);margin-bottom:4px;font-family:'Fredoka One',cursive;}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:16px;}
+.modal-close{position:absolute;top:20px;right:20px;font-size:22px;cursor:pointer;
+  color:var(--text3);width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:var(--sand);}
+
+/* ══ TIMO MASCOT ══ */
+.timo-bubble{
+  display:flex;align-items:flex-end;gap:8px;
+  margin:12px 16px 0;animation:timoEnter .4s cubic-bezier(.34,1.3,.64,1);
+}
+@keyframes timoEnter{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.timo-avatar{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green) 0%,var(--sky) 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;flex-shrink:0;
+  box-shadow:0 3px 12px rgba(123,201,111,.4);
+  animation:timoWiggle 4s ease-in-out infinite;
+}
+@keyframes timoWiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.timo-speech{
+  background:var(--white);border:2px solid var(--green-lt);
+  border-radius:18px 18px 18px 4px;padding:10px 14px;
+  font-size:13px;font-weight:700;color:var(--brown);
+  box-shadow:var(--shadow-sm);flex:1;position:relative;
+  animation:speechPop .35s cubic-bezier(.34,1.4,.64,1) .1s both;
+}
+@keyframes speechPop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.timo-speech::after{
+  content:'';position:absolute;left:-8px;bottom:10px;
+  border:6px solid transparent;border-right-color:var(--green-lt);
+}
+.timo-name{font-size:9px;font-weight:800;color:var(--green2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+
+/* ══ POLAROID ANIMATION LAYER ══ */
+.anim-layer{position:absolute;inset:0;pointer-events:none;z-index:180;overflow:hidden;}
+.polaroid-fly{
+  position:absolute;background:var(--white);border-radius:6px;
+  padding:8px 8px 24px;box-shadow:var(--shadow-lg);
+  font-size:28px;display:flex;align-items:center;justify-content:center;
+  width:70px;height:80px;
+  animation:polaroidDrop 1.4s cubic-bezier(.34,1.1,.64,1) forwards;
+}
+@keyframes polaroidDrop{
+  0%{opacity:0;transform:scale(.4) rotate(-5deg) translateY(-60px);}
+  40%{opacity:1;transform:scale(1.1) rotate(4deg) translateY(10px);}
+  65%{transform:scale(1) rotate(-2deg) translateY(0);}
+  80%{transform:scale(1) rotate(-2deg) translateY(0);opacity:1;}
+  100%{opacity:0;transform:scale(.5) rotate(-10deg) translateY(80px);}
+}
+.memory-swirl-particle{
+  position:absolute;font-size:20px;
+  animation:swirlAnim 1.6s ease-in forwards;
+}
+@keyframes swirlAnim{
+  0%{opacity:1;transform:scale(1) rotate(0deg) translate(0,0);}
+  100%{opacity:0;transform:scale(.3) rotate(720deg) translate(var(--tx),var(--ty));}
+}
+.story-generate-overlay{
+  position:absolute;inset:0;z-index:160;
+  background:rgba(255,253,245,.92);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;animation:genIn .3s ease;
+  backdrop-filter:blur(4px);
+}
+@keyframes genIn{from{opacity:0}to{opacity:1}}
+.story-book-anim{font-size:64px;animation:bookSpin 1.2s ease-in-out infinite alternate;}
+@keyframes bookSpin{from{transform:scale(1) rotate(-4deg)}to{transform:scale(1.08) rotate(4deg)}}
+.gen-text{font-family:'Fredoka One',cursive;font-size:20px;color:var(--brown);text-align:center;}
+.gen-dots span{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--sky);
+  margin:0 3px;animation:dotBounce 1s infinite;}
+.gen-dots span:nth-child(2){animation-delay:.2s;}
+.gen-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dotBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* ══ STAMP ANIMATION ══ */
+.stamp-overlay{
+  position:absolute;inset:0;z-index:170;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,217,90,.15);backdrop-filter:blur(2px);
+  animation:stampFadeIn .2s ease;
+}
+@keyframes stampFadeIn{from{opacity:0}to{opacity:1}}
+.stamp-anim-inner{
+  text-align:center;
+  animation:stampDrop .5s cubic-bezier(.34,1.5,.64,1);
+}
+@keyframes stampDrop{
+  0%{transform:scale(3) rotate(-15deg);opacity:0;}
+  60%{transform:scale(.95) rotate(2deg);opacity:1;}
+  80%{transform:scale(1.05) rotate(-1deg);}
+  100%{transform:scale(1) rotate(0deg);opacity:1;}
+}
+.stamp-anim-emoji{font-size:80px;display:block;}
+.stamp-anim-text{font-family:'Fredoka One',cursive;font-size:22px;color:var(--brown);margin-top:8px;}
+.stamp-anim-sub{font-size:13px;color:var(--text3);margin-top:4px;}
+.stamp-burst{position:absolute;inset:0;pointer-events:none;}
+.burst-particle{position:absolute;top:50%;left:50%;width:8px;height:8px;
+  border-radius:50%;animation:burst .8s ease-out forwards;}
+@keyframes burst{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  100%{transform:translate(calc(-50% + var(--bx)),calc(-50% + var(--by))) scale(0);opacity:0;}}
+
+/* ══ HOME SCREEN ══ */
+.home-hero{
+  background:linear-gradient(135deg,#5ec5f5 0%,#67C7F5 40%,#7dd4c4 100%);
+  padding:20px 22px 18px;position:relative;overflow:hidden;flex-shrink:0;
+}
+.home-hero::before{content:'🌤';position:absolute;right:18px;top:14px;font-size:38px;opacity:.25;pointer-events:none;}
+.home-hero::after{content:'⭐';position:absolute;right:52px;top:28px;font-size:14px;opacity:.3;pointer-events:none;animation:twinkle 2s infinite;}
+@keyframes twinkle{0%,100%{opacity:.3}50%{opacity:.7}}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.hero-greeting-small{font-size:12px;color:rgba(255,255,255,.85);font-weight:700;letter-spacing:.3px;}
+.hero-name-big{font-size:26px;font-weight:800;color:var(--white);line-height:1.1;
+  font-family:'Fredoka One',cursive;margin-top:2px;}
+.hero-tagline{font-size:13px;color:rgba(255,255,255,.9);font-weight:600;margin-top:4px;}
+.hero-avatar{width:52px;height:52px;border-radius:50%;background:var(--yellow);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);flex-shrink:0;
+  animation:avatarPulse 3s ease-in-out infinite;}
+@keyframes avatarPulse{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.18)}50%{box-shadow:0 4px 24px rgba(255,217,90,.5)}}
+.hero-date-strip{margin-top:12px;display:flex;align-items:center;gap:8px;}
+.date-tag{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);
+  border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--white);}
+
+/* Story ready card */
+.story-ready-card{margin:14px 16px 0;background:var(--white);border-radius:var(--radius);
+  padding:18px 18px;border:2.5px solid var(--yellow);cursor:pointer;
+  box-shadow:var(--shadow-md),0 0 0 4px var(--yellow-lt);
+  transition:transform .15s;position:relative;overflow:hidden;flex-shrink:0;}
+.story-ready-card:active{transform:scale(.98);}
+.story-ready-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;
+  background:repeating-linear-gradient(90deg,var(--yellow) 0,var(--yellow) 12px,var(--green) 12px,var(--green) 24px,var(--sky) 24px,var(--sky) 36px);}
+.ready-badge{display:inline-flex;align-items:center;gap:5px;background:var(--yellow-lt);
+  border:1.5px solid var(--yellow2);border-radius:20px;padding:3px 10px;
+  font-size:10px;font-weight:800;color:var(--brown);text-transform:uppercase;margin-bottom:8px;margin-top:2px;}
+.ready-title{font-size:19px;font-weight:800;color:var(--text);line-height:1.2;font-family:'Fredoka One',cursive;}
+.ready-meta{font-size:11px;color:var(--text3);margin-top:3px;font-weight:500;}
+.ready-cta{margin-top:14px;display:inline-flex;align-items:center;gap:6px;
+  background:var(--sky);color:var(--white);font-weight:800;font-size:13px;
+  border:none;border-radius:var(--radius-sm);padding:10px 18px;cursor:pointer;
+  font-family:'Baloo 2',cursive;box-shadow:0 3px 10px rgba(103,199,245,.4);transition:all .18s;}
+.ready-cta:hover{background:var(--sky2);}
+.dino-float{position:absolute;right:14px;bottom:8px;font-size:52px;
+  animation:float 3s ease-in-out infinite;pointer-events:none;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* Moments scroll */
+.moments-scroll{display:flex;gap:10px;padding:0 16px 4px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.moments-scroll::-webkit-scrollbar{display:none;}
+.moment-chip{flex-shrink:0;background:var(--white);border:2px solid var(--sand);
+  border-radius:16px;padding:10px 14px;display:flex;align-items:center;gap:8px;
+  cursor:pointer;transition:all .18s;box-shadow:var(--shadow-sm);}
+.moment-chip:hover{border-color:var(--sky);}
+.moment-emoji{font-size:22px;}
+.moment-name{font-size:12px;font-weight:700;color:var(--text);}
+.moment-type{font-size:10px;color:var(--text3);font-weight:500;}
+
+/* Quick actions */
+.quick-actions{display:flex;gap:10px;padding:14px 16px;flex-shrink:0;}
+.quick-btn{flex:1;background:var(--white);border:2px solid var(--sand);border-radius:18px;
+  padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;
+  cursor:pointer;transition:all .18s;box-shadow:var(--shadow-sm);}
+.quick-btn:hover{border-color:var(--sky);transform:translateY(-2px);}
+.quick-btn-icon{font-size:22px;}
+.quick-btn-label{font-size:10px;font-weight:700;color:var(--text2);}
+
+/* ON THIS DAY */
+.on-this-day{margin:4px 16px 0;border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow-md);flex-shrink:0;}
+.otd-header{background:linear-gradient(135deg,var(--peach) 0%,var(--yellow) 100%);
+  padding:14px 16px;display:flex;align-items:center;gap:10px;}
+.otd-icon{font-size:28px;animation:heartbeat 2s ease-in-out infinite;}
+@keyframes heartbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.12)}30%{transform:scale(1)}}
+.otd-title{font-family:'Fredoka One',cursive;font-size:17px;color:var(--white);}
+.otd-sub{font-size:11px;color:rgba(255,255,255,.85);margin-top:1px;}
+.otd-memories{background:var(--paper);}
+.otd-memory-row{display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-bottom:1px solid var(--sand);cursor:pointer;transition:all .15s;}
+.otd-memory-row:last-child{border-bottom:none;}
+.otd-memory-row:hover{background:var(--sky-xl);}
+.otd-mem-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:22px;flex-shrink:0;}
+.otd-mem-title{font-size:13px;font-weight:700;color:var(--text);}
+.otd-mem-date{font-size:10px;color:var(--text3);margin-top:2px;}
+.otd-mem-arrow{font-size:16px;color:var(--text3);margin-left:auto;}
+
+/* ══ CAPTURE ══ */
+.capture-hero{background:linear-gradient(135deg,var(--green) 0%,#6dc46a 100%);
+  padding:18px 22px 20px;flex-shrink:0;}
+.capture-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px;flex-shrink:0;}
+.cap-card{background:var(--white);border:2px solid var(--sand);border-radius:var(--radius);
+  padding:18px 14px;display:flex;flex-direction:column;align-items:flex-start;
+  cursor:pointer;transition:all .18s;box-shadow:var(--shadow-sm);position:relative;}
+.cap-card:active{transform:scale(.96);}
+.cap-card.sky{border-top:4px solid var(--sky);}
+.cap-card.green{border-top:4px solid var(--green);}
+.cap-card.yellow{border-top:4px solid var(--yellow);}
+.cap-card.brown{border-top:4px solid var(--brown);}
+.cap-card.wide{grid-column:span 2;flex-direction:row;align-items:center;gap:14px;border-top:4px solid var(--sky);}
+.cap-card.wide .cap-icon{margin-bottom:0;}
+.cap-icon{font-size:30px;margin-bottom:10px;}
+.cap-name{font-size:14px;font-weight:800;color:var(--text);}
+.cap-desc{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4;font-weight:500;}
+.cap-card.tapped{background:var(--green-lt);border-color:var(--green2);}
+.rec-badge{display:inline-flex;align-items:center;gap:4px;background:#fff0f0;
+  border:1.5px solid #ffbfbf;border-radius:8px;padding:3px 8px;
+  font-size:10px;font-weight:800;color:#e05555;margin-top:8px;}
+.rec-dot{width:5px;height:5px;border-radius:50%;background:#e05555;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.moments-tally{margin:4px 16px 0;background:var(--green-lt);border:1.5px solid var(--green2);
+  border-radius:14px;padding:12px 16px;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;}
+.tally-text{font-size:13px;font-weight:700;color:var(--brown);}
+.tally-chips{display:flex;gap:4px;font-size:16px;}
+.cap-card.recording{background:#fff5f5;border-color:#e05555 !important;}
+.rec-timer{font-size:18px;font-weight:800;color:#e05555;margin-top:6px;}
+.draw-canvas{border-radius:12px;background:#fff;touch-action:none;cursor:crosshair;display:block;width:100%;}
+.color-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;}
+.color-swatch{width:32px;height:32px;border-radius:50%;cursor:pointer;
+  border:3px solid transparent;transition:all .15s;flex-shrink:0;}
+.color-swatch.sel{border-color:var(--text);transform:scale(1.15);}
+.brush-row{display:flex;gap:8px;align-items:center;margin-bottom:12px;}
+.brush-opt{padding:4px 12px;border-radius:20px;border:1.5px solid var(--sand);
+  font-size:12px;font-weight:700;color:var(--text3);cursor:pointer;transition:all .15s;}
+.brush-opt.sel{background:var(--sky-lt);border-color:var(--sky2);color:var(--sky2);}
+.draw-actions{display:flex;gap:8px;margin-top:10px;}
+.draw-btn{flex:1;padding:10px;border-radius:12px;border:none;font-family:'Baloo 2',cursive;
+  font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;}
+.draw-btn.clear{background:var(--sand);color:var(--brown);}
+.draw-btn.save{background:var(--sky);color:var(--white);}
+.sticker-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:8px;}
+.sticker-opt{font-size:28px;text-align:center;cursor:pointer;padding:6px;
+  border-radius:12px;transition:all .15s;border:2px solid transparent;}
+.sticker-opt:hover{background:var(--sky-lt);border-color:var(--sky);}
+.sticker-opt.sel{background:var(--yellow-lt);border-color:var(--yellow2);}
+
+/* ══ MAP ══ */
+.map-hero{background:linear-gradient(135deg,var(--green) 0%,#6dc46a 100%);
+  padding:18px 22px 20px;flex-shrink:0;}
+.map-wrap{margin:14px 16px 0;border-radius:var(--radius);overflow:hidden;
+  position:relative;height:290px;border:2.5px solid var(--sky);
+  box-shadow:var(--shadow-md);flex-shrink:0;}
+.map-bg{width:100%;height:100%;
+  background:linear-gradient(180deg,#e8f6e0 0%,#cff0d4 40%,#b8e8bf 100%);
+  position:relative;overflow:hidden;}
+.map-topo{position:absolute;inset:0;
+  background-image:repeating-radial-gradient(ellipse at 40% 60%,transparent 30px,rgba(123,201,111,.15) 31px,transparent 32px),
+  repeating-radial-gradient(ellipse at 70% 30%,transparent 25px,rgba(103,199,245,.12) 26px,transparent 27px);}
+.map-road-h{position:absolute;top:55%;left:0;right:0;height:8px;
+  background:rgba(255,255,255,.7);border-top:1px solid rgba(123,94,58,.1);border-bottom:1px solid rgba(123,94,58,.1);}
+.map-road-v{position:absolute;left:50%;top:0;bottom:0;width:8px;
+  background:rgba(255,255,255,.7);border-left:1px solid rgba(123,94,58,.1);}
+.map-route-line{position:absolute;top:30%;left:20%;right:20%;bottom:30%;
+  border:3px dashed var(--sky2);border-radius:50%;opacity:.6;}
+.map-nav-strip{position:absolute;top:0;left:0;right:0;background:rgba(255,255,255,.93);
+  backdrop-filter:blur(10px);padding:10px 14px;
+  border-bottom:1.5px solid rgba(103,199,245,.3);
+  display:flex;align-items:center;gap:10px;z-index:2;}
+.nav-arrows{display:flex;gap:4px;}
+.nav-arr{width:30px;height:30px;border-radius:8px;background:var(--sky);
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--white);font-weight:700;}
+.nav-dist{font-size:15px;font-weight:800;color:var(--text);line-height:1;}
+.nav-street{font-size:11px;color:var(--text3);font-weight:500;}
+.nav-next-badge{margin-left:auto;background:var(--sky-lt);border:1.5px solid var(--sky);
+  border-radius:10px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--sky2);}
+.map-pin{position:absolute;display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;transition:transform .18s;z-index:1;}
+.map-pin:hover{transform:scale(1.15);}
+.map-pin:active{transform:scale(.95);}
+.pin-bub{background:var(--white);border:2.5px solid var(--sky);border-radius:50%;
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;box-shadow:var(--shadow-sm);transition:all .2s;}
+.pin-bub.saved{border-color:var(--green);background:var(--green-lt);}
+.pin-lbl{font-size:9px;font-weight:700;color:var(--brown);background:rgba(255,255,255,.88);
+  border-radius:4px;padding:1px 5px;margin-top:2px;white-space:nowrap;}
+.location-list{padding:12px 16px;flex-shrink:0;}
+.loc-row{display:flex;align-items:center;gap:12px;padding:10px 0;
+  border-bottom:1.5px solid var(--sand);cursor:pointer;transition:all .15s;}
+.loc-row:last-child{border-bottom:none;}
+.loc-row:hover{padding-left:4px;}
+.loc-icon{font-size:22px;width:34px;text-align:center;}
+.loc-name{font-size:13px;font-weight:700;color:var(--text);flex:1;}
+.loc-saved{font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
+.loc-saved.yes{color:var(--green2);}
+.loc-saved.no{color:var(--text3);}
+
+/* ══ STORY ══ */
+.story-hero{background:linear-gradient(135deg,var(--yellow) 0%,#ffd040 100%);
+  padding:18px 22px 20px;flex-shrink:0;}
+.story-tabs{display:flex;gap:8px;padding:12px 16px 6px;flex-shrink:0;}
+.s-tab{flex:1;padding:8px 4px;border-radius:12px;text-align:center;
+  font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--sand);
+  color:var(--text3);background:var(--white);transition:all .18s;}
+.s-tab.active{background:var(--yellow-lt);border-color:var(--yellow2);color:var(--brown);}
+.story-book{margin:8px 16px 0;border-radius:var(--radius);background:var(--paper);
+  border:2px solid var(--sand);padding:20px 18px;box-shadow:var(--shadow-sm);
+  flex-shrink:0;position:relative;overflow:hidden;}
+.story-book::before{content:'';position:absolute;top:0;left:0;bottom:0;width:5px;
+  background:repeating-linear-gradient(180deg,var(--yellow) 0,var(--yellow) 20px,var(--sky) 20px,var(--sky) 40px,var(--green) 40px,var(--green) 60px);}
+.story-book-title{font-family:'Fredoka One',cursive;font-size:18px;color:var(--text);
+  line-height:1.3;margin-bottom:4px;padding-left:10px;}
+.story-book-meta{font-size:11px;color:var(--text3);margin-bottom:14px;padding-left:10px;}
+.story-body{font-family:'Lora',serif;font-size:14px;line-height:1.8;
+  color:var(--text2);font-style:italic;padding-left:10px;}
+.audio-bar{margin:12px 16px 0;background:var(--white);border:2px solid var(--sand);
+  border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;
+  box-shadow:var(--shadow-sm);flex-shrink:0;}
+.audio-play-btn{width:40px;height:40px;border-radius:50%;background:var(--sky);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:16px;color:var(--white);flex-shrink:0;
+  box-shadow:0 3px 10px rgba(103,199,245,.4);transition:all .18s;user-select:none;}
+.audio-play-btn:hover{transform:scale(1.08);}
+.audio-prog{flex:1;}
+.audio-track{height:4px;background:var(--sand);border-radius:2px;cursor:pointer;position:relative;}
+.audio-fill{height:100%;background:var(--sky);border-radius:2px;transition:width .5s linear;pointer-events:none;}
+.audio-times{font-size:10px;color:var(--text3);margin-top:4px;display:flex;justify-content:space-between;font-weight:600;}
+.voice-row{display:flex;gap:7px;padding:12px 16px 0;flex-shrink:0;flex-wrap:wrap;}
+.voice-pill{padding:6px 13px;border-radius:20px;font-size:11px;font-weight:700;
+  border:1.5px solid var(--sand);color:var(--text3);background:var(--white);
+  cursor:pointer;transition:all .18s;}
+.voice-pill.active{background:var(--sky-lt);border-color:var(--sky2);color:var(--sky2);}
+/* Story generate button */
+.gen-story-btn{margin:12px 16px 0;width:calc(100% - 32px);padding:14px;border:none;
+  border-radius:var(--radius);background:linear-gradient(135deg,var(--yellow) 0%,var(--peach) 100%);
+  color:var(--brown);font-family:'Fredoka One',cursive;font-size:16px;cursor:pointer;
+  box-shadow:var(--shadow-md);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+  flex-shrink:0;}
+.gen-story-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+
+/* ══ PASSPORT ══ */
+.passport-hero{background:linear-gradient(135deg,var(--yellow) 0%,#fcc800 100%);
+  padding:18px 22px 20px;flex-shrink:0;}
+.pp-stats{margin:14px 16px 0;background:var(--white);border:2px solid var(--sand);
+  border-radius:var(--radius);padding:16px 10px;display:flex;justify-content:space-around;
+  box-shadow:var(--shadow-sm);flex-shrink:0;}
+.pp-stat{text-align:center;}
+.pp-num{font-size:28px;font-weight:800;color:var(--sky2);font-family:'Fredoka One',cursive;}
+.pp-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.stamps-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px 16px;flex-shrink:0;}
+.stamp{background:var(--white);border:2px solid var(--sand);border-radius:18px;
+  padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;
+  cursor:pointer;transition:all .18s;box-shadow:var(--shadow-sm);}
+.stamp.earned{border-color:var(--yellow2);background:var(--yellow-lt);}
+.stamp.locked{opacity:.45;}
+.stamp:active{transform:scale(.95);}
+.stamp-emoji{font-size:28px;}
+.stamp-name{font-size:9px;font-weight:700;color:var(--text2);text-align:center;line-height:1.3;}
+.stamp-status{font-size:13px;}
+
+/* ══ VAULT ══ */
+.vault-hero{background:linear-gradient(135deg,var(--sky) 0%,#4ec9f8 100%);
+  padding:18px 22px 20px;flex-shrink:0;}
+.vault-list{padding:12px 16px;flex-shrink:0;}
+.vault-card{background:var(--white);border:2px solid var(--sand);border-radius:var(--radius);
+  padding:14px;margin-bottom:10px;cursor:pointer;transition:all .18s;
+  display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);}
+.vault-card:hover{border-color:var(--sky);transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.vault-card.expanded{flex-wrap:wrap;}
+.vault-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:24px;flex-shrink:0;}
+.vault-info{flex:1;}
+.vault-title-text{font-size:14px;font-weight:800;color:var(--text);}
+.vault-date{font-size:11px;color:var(--text3);font-weight:500;margin-top:1px;}
+.vault-mmt{font-size:10px;color:var(--text3);font-weight:500;margin-top:3px;}
+.vault-acts{display:flex;gap:6px;}
+.vault-act{font-size:17px;cursor:pointer;opacity:.5;transition:opacity .18s;padding:2px;}
+.vault-act:hover{opacity:1;}
+.vault-preview{width:100%;margin-top:10px;padding:12px;background:var(--paper);
+  border-radius:12px;font-family:'Lora',serif;font-size:12px;line-height:1.7;
+  color:var(--text2);font-style:italic;display:none;border:1px solid var(--sand);}
+.vault-card.expanded .vault-preview{display:block;}
+
+/* Location / other modals */
+.loc-modal-icon{font-size:48px;text-align:center;margin-bottom:8px;}
+.loc-modal-name{font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px;font-family:'Fredoka One',cursive;}
+.loc-modal-coords{font-size:12px;color:var(--text3);margin-bottom:16px;}
+.loc-modal-btn{width:100%;padding:12px;border:none;border-radius:14px;
+  font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;margin-bottom:8px;}
+.loc-modal-btn.save{background:var(--green);color:var(--white);}
+.loc-modal-btn.vault{background:var(--sky);color:var(--white);}
+.loc-modal-btn.unsave{background:var(--sand);color:var(--brown);}
+.loc-modal-btn.cancel{background:transparent;color:var(--text3);border:1.5px solid var(--sand);}
+</style>
+</head>
+<body>
+<div class="phone" id="app">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time" id="clockDisplay">10:53</span>
+    <div class="status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="4" width="3" height="8" rx="1" opacity="0.5"/><rect x="4" y="2.5" width="3" height="9.5" rx="1" opacity="0.7"/><rect x="8" y="1" width="3" height="11" rx="1" opacity="0.85"/><rect x="12" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="15" height="12" viewBox="0 0 15 12" fill="none"><path d="M7.5 2.5C9.8 2.5 11.8 3.6 13.1 5.3L14.3 4C12.7 2 10.2.8 7.5.8 4.8.8 2.3 2 .7 4L1.9 5.3C3.2 3.6 5.2 2.5 7.5 2.5Z" fill="white"/><path d="M7.5 5.2C9 5.2 10.4 5.9 11.3 7L12.5 5.7C11.3 4.3 9.5 3.5 7.5 3.5 5.5 3.5 3.7 4.3 2.5 5.7L3.7 7C4.6 5.9 6 5.2 7.5 5.2Z" fill="white"/><circle cx="7.5" cy="9.5" r="2" fill="white"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity="0.5"/><rect x="2" y="2" width="17" height="8" rx="2" fill="white"/><path d="M23 4v4a2 2 0 000-4z" fill="white" fill-opacity="0.5"/></svg>
+    </div>
+  </div>
+
+  <!-- Screens -->
+  <div class="screens">
+
+    <!-- ── HOME ── -->
+    <div class="screen active" id="screen-home">
+      <div class="home-hero">
+        <div class="hero-top">
+          <div>
+            <div class="hero-greeting-small" id="homeGreeting">Good morning, Mia! 🌞</div>
+            <div class="hero-name-big">Ready for today's adventure?</div>
+            <div class="hero-tagline">What memories will you make today? ✨</div>
+          </div>
+          <div class="hero-avatar">👧</div>
+        </div>
+        <div class="hero-date-strip">
+          <div class="date-tag">🗓 June 1, 2026</div>
+          <div class="date-tag">☀️ Sunny in Tacoma</div>
+        </div>
+      </div>
+      <div class="scroll-area">
+        <!-- Timo mascot -->
+        <div class="timo-bubble" id="timoHome">
+          <div class="timo-avatar">🐢</div>
+          <div class="timo-speech">
+            <div class="timo-name">Timo says</div>
+            Your story is ready! Every day becomes a bedtime story! 📖
+          </div>
+        </div>
+
+        <!-- Story ready card -->
+        <div class="story-ready-card" id="homeStoryCard">
+          <div class="ready-badge">✨ Story Ready!</div>
+          <div class="ready-title">The Big Dinosaur Day 🦕</div>
+          <div class="ready-meta">June 1, 2026 · <span id="momentCountDisplay">5</span> moments captured</div>
+          <button class="ready-cta">Read Bedtime Story →</button>
+          <div class="dino-float">🦕</div>
+        </div>
+
+        <!-- Today's moments -->
+        <div class="section-row">
+          <div class="section-title">Today's Moments</div>
+          <div class="section-link" id="addMoreLink">+ Add more</div>
+        </div>
+        <div class="moments-scroll" id="homeMoments"></div>
+
+        <!-- Quick actions -->
+        <div class="section-row" style="margin-top:4px;"><div class="section-title">Quick Actions</div></div>
+        <div class="quick-actions">
+          <div class="quick-btn" data-nav="capture"><div class="quick-btn-icon">📸</div><div class="quick-btn-label">Capture</div></div>
+          <div class="quick-btn" data-nav="map"><div class="quick-btn-icon">🗺️</div><div class="quick-btn-label">Map</div></div>
+          <div class="quick-btn" data-nav="passport"><div class="quick-btn-icon">🎫</div><div class="quick-btn-label">Passport</div></div>
+          <div class="quick-btn" data-nav="vault"><div class="quick-btn-icon">💾</div><div class="quick-btn-label">Vault</div></div>
+        </div>
+
+        <!-- On This Day -->
+        <div class="section-row"><div class="section-title">💛 On This Day</div></div>
+        <div class="on-this-day" id="onThisDay">
+          <div class="otd-header">
+            <div class="otd-icon">💝</div>
+            <div>
+              <div class="otd-title">Memories from 1 year ago</div>
+              <div class="otd-sub">June 1, 2025 · Tap to relive</div>
+            </div>
+          </div>
+          <div class="otd-memories" id="otdMemories"></div>
+        </div>
+        <div style="height:16px;"></div>
+      </div>
+    </div>
+
+    <!-- ── CAPTURE ── -->
+    <div class="screen" id="screen-capture">
+      <div class="capture-hero">
+        <div class="hero-title">Capture 📸</div>
+        <div class="hero-sub">Add moments to today's adventure</div>
+      </div>
+      <!-- Timo -->
+      <div class="timo-bubble" id="timoCapture" style="margin-bottom:0;">
+        <div class="timo-avatar" style="width:36px;height:36px;font-size:20px;">🐢</div>
+        <div class="timo-speech" style="font-size:12px;padding:8px 12px;">
+          <div class="timo-name">Timo says</div>
+          Let's save this memory! Tap anything to capture! 🌟
+        </div>
+      </div>
+      <div class="scroll-area">
+        <div class="capture-grid">
+          <div class="cap-card sky" id="capPhoto">
+            <div class="cap-icon">📸</div>
+            <div class="cap-name">Photo</div>
+            <div class="cap-desc">Tap to save a photo moment</div>
+          </div>
+          <div class="cap-card green" id="capVoice">
+            <div class="cap-icon">🎤</div>
+            <div class="cap-name">Voice Note</div>
+            <div class="cap-desc">Tap to start recording</div>
+            <div class="rec-timer" id="recTimer" style="display:none;">0:00</div>
+          </div>
+          <div class="cap-card yellow" id="capDraw">
+            <div class="cap-icon">✏️</div>
+            <div class="cap-name">Drawing</div>
+            <div class="cap-desc">Color canvas for Mia to draw</div>
+          </div>
+          <div class="cap-card brown" id="capLocation">
+            <div class="cap-icon">📍</div>
+            <div class="cap-name">Location</div>
+            <div class="cap-desc">Drop a GPS pin here</div>
+          </div>
+          <div class="cap-card wide sky" id="capSticker">
+            <div class="cap-icon">🌟</div>
+            <div>
+              <div class="cap-name">Sticker</div>
+              <div class="cap-desc">Pick an emoji sticker for the story page</div>
+            </div>
+          </div>
+        </div>
+        <div class="moments-tally">
+          <div class="tally-text" id="tallyText">5 moments captured today</div>
+          <div class="tally-chips" id="tallyChips">📸 🎤 📍 🎤 🦕</div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+    </div>
+
+    <!-- ── MAP ── -->
+    <div class="screen" id="screen-map">
+      <div class="map-hero">
+        <div class="hero-title">Adventure Map 🗺️</div>
+        <div class="hero-sub">Tacoma, WA · Today's route</div>
+      </div>
+      <div class="map-wrap">
+        <div class="map-bg">
+          <div class="map-topo"></div><div class="map-road-h"></div><div class="map-road-v"></div>
+          <div class="map-route-line"></div>
+          <div class="map-nav-strip">
+            <div class="nav-arrows"><div class="nav-arr">↑</div><div class="nav-arr">↗</div></div>
+            <div><div class="nav-dist">900 ft</div><div class="nav-street">Tacoma Waterfront</div></div>
+            <div class="nav-next-badge">⚓ Next Stop</div>
+          </div>
+          <div class="map-pin" style="left:33%;top:40%;" data-loc="0"><div class="pin-bub saved" id="pinBub0">🦁</div><div class="pin-lbl">Zoo</div></div>
+          <div class="map-pin" style="left:60%;top:24%;" data-loc="1"><div class="pin-bub" id="pinBub1">🌳</div><div class="pin-lbl">Rose Garden</div></div>
+          <div class="map-pin" style="left:74%;top:54%;" data-loc="2"><div class="pin-bub saved" id="pinBub2">🎨</div><div class="pin-lbl">Museum</div></div>
+          <div class="map-pin" style="left:19%;top:64%;" data-loc="3"><div class="pin-bub" id="pinBub3">🍦</div><div class="pin-lbl">Ice Cream</div></div>
+          <div class="map-pin" style="left:50%;top:70%;" data-loc="4"><div class="pin-bub saved" id="pinBub4">⚓</div><div class="pin-lbl">Waterfront</div></div>
+        </div>
+      </div>
+      <div class="scroll-area">
+        <div class="timo-bubble" style="margin:10px 16px 0;">
+          <div class="timo-avatar" style="width:36px;height:36px;font-size:20px;">🐢</div>
+          <div class="timo-speech" style="font-size:12px;padding:8px 12px;">
+            <div class="timo-name">Timo says</div>
+            Adventure nearby! Tap a pin to add it to your story! 🗺️
+          </div>
+        </div>
+        <div class="location-list" id="locationList"></div>
+        <div style="height:8px;"></div>
+      </div>
+    </div>
+
+    <!-- ── STORY ── -->
+    <div class="screen" id="screen-story">
+      <div class="story-hero">
+        <div class="hero-title">Story Time 📖</div>
+        <div class="hero-sub">Every day becomes a bedtime story</div>
+      </div>
+      <div class="story-tabs">
+        <div class="s-tab active" data-tab="bedtime">🌙 Bedtime</div>
+        <div class="s-tab" data-tab="adventure">⚔️ Adventure</div>
+        <div class="s-tab" data-tab="educational">🔬 Educational</div>
+      </div>
+      <div class="scroll-area">
+        <!-- Generate magic button -->
+        <button class="gen-story-btn" id="genStoryBtn">✨ Generate New Story Magic!</button>
+        <div class="story-book">
+          <div class="story-book-title" id="storyTitle">The Big Dinosaur Day 🦕</div>
+          <div class="story-book-meta">June 1, 2026 · 5 moments · Character: Mia</div>
+          <div class="story-body" id="storyBody">
+            Once upon a Tuesday, Mia and Mommy set out on a grand adventure through the city. Their first stop was the Tacoma Waterfront, where Mia watched boats sailing across the sparkling water like tiny toy ships.<br><br>
+            Then they discovered a GIANT dinosaur statue outside a museum! Mia was so brave — she walked right up and said hello. After lunch, they heard the rumble of a mighty train.<br><br>
+            Their final adventure took them to Point Defiance Zoo, where Mia met a lion who looked very regal indeed. The End 🌙✨
+          </div>
+        </div>
+        <div class="audio-bar">
+          <div class="audio-play-btn" id="playBtn">▶</div>
+          <div class="audio-prog">
+            <div class="audio-track" id="audioTrack"><div class="audio-fill" id="audioFill" style="width:0%;"></div></div>
+            <div class="audio-times"><span id="audioElapsed">0:00</span><span id="audioDuration">3:24</span></div>
+          </div>
+        </div>
+        <div class="section-row" style="margin-top:6px;"><div class="section-title">Narrator Voice</div></div>
+        <div class="voice-row">
+          <div class="voice-pill active" data-voice="lullaby">🌙 Calm Lullaby</div>
+          <div class="voice-pill" data-voice="storyteller">🎭 Storyteller</div>
+          <div class="voice-pill" data-voice="child">⭐ Child Voice</div>
+          <div class="voice-pill" data-voice="owl">🦉 Wise Owl</div>
+        </div>
+        <div style="height:12px;"></div>
+      </div>
+    </div>
+
+    <!-- ── PASSPORT ── -->
+    <div class="screen" id="screen-passport">
+      <div class="passport-hero">
+        <div class="hero-title">Adventure Passport 🎫</div>
+        <div class="hero-sub">Mia's stamp collection</div>
+      </div>
+      <div class="scroll-area">
+        <div class="timo-bubble" style="margin:12px 16px 0;">
+          <div class="timo-avatar" style="width:36px;height:36px;font-size:20px;">🐢</div>
+          <div class="timo-speech" style="font-size:12px;padding:8px 12px;">
+            <div class="timo-name">Timo says</div>
+            You're an amazing explorer! 3 stamps earned — keep going! 🌟
+          </div>
+        </div>
+        <div class="pp-stats">
+          <div class="pp-stat"><div class="pp-num" id="statAdv">14</div><div class="pp-lbl">Adventures</div></div>
+          <div class="pp-stat"><div class="pp-num" id="statLoc">28</div><div class="pp-lbl">Locations</div></div>
+          <div class="pp-stat"><div class="pp-num" id="statStamps">3</div><div class="pp-lbl">Stamps</div></div>
+        </div>
+        <div class="stamps-grid" id="stampsGrid"></div>
+        <div style="height:8px;"></div>
+      </div>
+    </div>
+
+    <!-- ── VAULT ── -->
+    <div class="screen" id="screen-vault">
+      <div class="vault-hero">
+        <div class="hero-title">Story Vault 💾</div>
+        <div class="hero-sub">All of Mia's saved stories</div>
+      </div>
+      <div class="scroll-area">
+        <div class="timo-bubble" style="margin:12px 16px 0;">
+          <div class="timo-avatar" style="width:36px;height:36px;font-size:20px;">🐢</div>
+          <div class="timo-speech" style="font-size:12px;padding:8px 12px;">
+            <div class="timo-name">Timo says</div>
+            Tap any story to read it again! These memories last forever 💛
+          </div>
+        </div>
+        <div class="vault-list" id="vaultList"></div>
+        <div style="height:8px;"></div>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- Nav -->
+  <div class="nav" id="mainNav">
+    <div class="nav-item active" data-screen="home"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+    <div class="nav-item" data-screen="capture"><div class="nav-icon">📸</div><div class="nav-label">Capture</div></div>
+    <div class="nav-item" data-screen="map"><div class="nav-icon">🗺️</div><div class="nav-label">Map</div></div>
+    <div class="nav-item" data-screen="story"><div class="nav-icon">📖</div><div class="nav-label">Story</div></div>
+    <div class="nav-item" data-screen="passport"><div class="nav-icon">🎫</div><div class="nav-label">Passport</div></div>
+    <div class="nav-item" data-screen="vault"><div class="nav-icon">💾</div><div class="nav-label">Vault</div></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Animation layer -->
+  <div class="anim-layer" id="animLayer"></div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-sheet" id="modalSheet">
+      <div class="modal-handle"></div>
+      <div class="modal-close" id="modalClose">✕</div>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+// ═══════════════ STATE ═══════════════
+const state = {
+  moments:[
+    {emoji:'📸',name:'Waterfront',type:'Photo'},
+    {emoji:'🦕',name:'Dino Statue',type:'Photo'},
+    {emoji:'🎤',name:'Voice Note',type:'0:42'},
+    {emoji:'🦁',name:'Point Defiance',type:'Location'},
+    {emoji:'🚂',name:'Train Sound',type:'Voice Note'},
+  ],
+  locations:[
+    {id:0,emoji:'🦁',name:'Point Defiance Zoo',coords:'47.3175° N, 122.6329° W',saved:true},
+    {id:1,emoji:'🌳',name:'Rose Garden Park',coords:'47.3041° N, 122.4520° W',saved:false},
+    {id:2,emoji:'🎨',name:'Museum of Glass',coords:'47.2497° N, 122.4421° W',saved:true},
+    {id:3,emoji:'🍦',name:'Ice Cream Cove',coords:'47.2601° N, 122.4376° W',saved:false},
+    {id:4,emoji:'⚓',name:'Tacoma Waterfront',coords:'47.2529° N, 122.4443° W',saved:true},
+    {id:5,emoji:'📚',name:'Tacoma Library',coords:'47.2556° N, 122.4457° W',saved:false},
+  ],
+  stamps:[
+    {emoji:'🦁',name:'First Zoo',earned:true},
+    {emoji:'🎨',name:'First Museum',earned:true},
+    {emoji:'🏛️',name:'Historic Site',earned:true},
+    {emoji:'🌲',name:'First State Park',earned:false},
+    {emoji:'🚗',name:'First Road Trip',earned:false},
+    {emoji:'⭐',name:'10 Adventures',earned:false},
+  ],
+  stories:[
+    {emoji:'🦕',bg:'#fff0cc',title:'The Big Dinosaur Day',date:'June 1, 2026',moments:5,
+      text:'Once upon a Tuesday, Mia and Mommy set out on a grand adventure through the city. Their first stop was the Tacoma Waterfront, where Mia watched boats sailing across the sparkling water like tiny toy ships. Then they discovered a GIANT dinosaur statue outside a museum! Mia was so brave — she walked right up and said hello. The End 🌙✨'},
+    {emoji:'🎨',bg:'#d4eefa',title:'Rainy Day Museum Adventure',date:'May 28, 2026',moments:4,
+      text:'On a rainy Wednesday, Mia put on her yellow boots and splashed through puddles all the way to the Museum of Glass. Inside she watched a glassblower spin molten orange into a beautiful vase. "It looks like candy!" she said. The End 🌙✨'},
+    {emoji:'🍦',bg:'#fff5cc',title:'The Ice Cream Quest',date:'May 24, 2026',moments:3,
+      text:'Mia had one mission: find the perfect ice cream. After trying three flavours she declared the mystery swirl the winner. It tasted like birthday cake and sunshine. The End 🌙✨'},
+    {emoji:'🌲',bg:'#d6f0d2',title:'Park Rangers for a Day',date:'May 20, 2026',moments:6,
+      text:'Deep in Point Defiance Park, Mia and Daddy became Park Rangers. They spotted a blue heron, counted seventeen pinecones, and built a tiny fairy house from sticks and leaves. The End 🌙✨'},
+  ],
+  onThisDay:[
+    {emoji:'🌸',bg:'#ffeef5',title:'Cherry Blossom Walk',date:'June 1, 2025',type:'Story'},
+    {emoji:'🎡',bg:'#e8f4ff',title:'First Ferris Wheel Ride',date:'June 1, 2024',type:'Photos + Story'},
+  ],
+  storyTexts:{
+    bedtime:'Once upon a Tuesday, Mia and Mommy set out on a grand adventure through the city. Their first stop was the Tacoma Waterfront, where Mia watched boats sailing across the sparkling water like tiny toy ships.<br><br>Then they discovered a GIANT dinosaur statue outside a museum! Mia was so brave — she walked right up and said hello. After lunch, they heard the rumble of a mighty train.<br><br>Their final adventure took them to Point Defiance Zoo, where Mia met a lion who looked very regal indeed. The End 🌙✨',
+    adventure:'ADVENTURE LOG: Day 1. Explorer Mia set out at dawn, armed with her trusty backpack and a map drawn in purple crayon. The waterfront held mystery — a fleet of ships carrying unknown cargo. Then: a DINOSAUR. Mia poked it bravely. It did not bite.<br><br>At the zoo, the lion roared. Mia roared back. The lion blinked first. Victory! The End ⚔️🏆',
+    educational:'Did you know? The Tacoma Waterfront connects to Commencement Bay, formed by glaciers thousands of years ago! When Mia visited the Museum of Glass, she learned that glassblowers heat sand to 2,000°F to make beautiful art.<br><br>At Point Defiance Zoo, Mia discovered that lions live in groups called prides, and that a lion\'s roar can be heard 5 miles away! The End 🔬🌍',
+  },
+  recording:false,recSeconds:0,recInterval:null,
+  playing:false,audioSeconds:0,audioDuration:204,audioInterval:null,
+  selectedVoice:'lullaby',selectedTab:'bedtime',selectedSticker:null,
+  drawColor:'#67C7F5',brushSize:4,
+  expandedVault:null,
+  childName:'Mia',childAvatar:'👧',theme:'girl',
+};
+
+// ═══════════════ NAVIGATION ═══════════════
+function switchScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const sc=document.getElementById('screen-'+name);
+  const ni=document.querySelector(`.nav-item[data-screen="${name}"]`);
+  if(sc) sc.classList.add('active');
+  if(ni) ni.classList.add('active');
+}
+
+document.getElementById('mainNav').addEventListener('click',e=>{
+  const item=e.target.closest('.nav-item');
+  if(item) switchScreen(item.dataset.screen);
+});
+
+document.getElementById('app').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-nav]');
+  if(btn){switchScreen(btn.dataset.nav);return;}
+  if(e.target.closest('#addMoreLink')){switchScreen('capture');return;}
+  if(e.target.closest('#homeStoryCard')){switchScreen('story');return;}
+  if(e.target.closest('.hero-avatar')){openProfileModal();return;}
+});
+
+// ═══════════════ TOAST ═══════════════
+function showToast(msg,dur=2000){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// ═══════════════ MODAL ═══════════════
+function openModal(html){
+  document.getElementById('modalContent').innerHTML=html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalOverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modalOverlay')) closeModal();
+});
+
+// ═══════════════ CLOCK ═══════════════
+function updateClock(){
+  const now=new Date();
+  let h=now.getHours(),m=now.getMinutes();
+  h=h%12||12;
+  document.getElementById('clockDisplay').textContent=`${h}:${String(m).padStart(2,'0')}`;
+  const hr=new Date().getHours();
+  const greet=hr<12?`Good morning, ${state.childName}! 🌞`:hr<17?`Good afternoon, ${state.childName}! ☀️`:`Good evening, ${state.childName}! 🌙`;
+  document.getElementById('homeGreeting').textContent=greet;
+}
+updateClock();
+setInterval(updateClock,30000);
+
+// ═══════════════ TIMO MESSAGES ═══════════════
+const timoMessages=[
+  'Your story is ready! Every day becomes a bedtime story! 📖',
+  'Let\'s go on an adventure today, Mia! 🌍',
+  'You\'ve captured 5 amazing memories! ⭐',
+  'Timo believes in you, explorer! 🐢✨',
+  'What magic will we discover today? 🌈',
+];
+let timoIdx=0;
+function cycleTimoMessage(){
+  timoIdx=(timoIdx+1)%timoMessages.length;
+  const el=document.querySelector('#timoHome .timo-speech');
+  if(el){
+    el.style.opacity='0';
+    setTimeout(()=>{
+      el.innerHTML=`<div class="timo-name">Timo says</div>${timoMessages[timoIdx]}`;
+      el.style.opacity='1';
+    },300);
+    el.style.transition='opacity .3s';
+  }
+}
+setInterval(cycleTimoMessage,5000);
+
+// ═══════════════ POLAROID ANIMATION ═══════════════
+function animatePolaroid(emoji){
+  const layer=document.getElementById('animLayer');
+  const el=document.createElement('div');
+  el.className='polaroid-fly';
+  el.textContent=emoji;
+  el.style.left=Math.random()*200+80+'px';
+  el.style.top='100px';
+  layer.appendChild(el);
+  setTimeout(()=>el.remove(),1600);
+}
+
+// ═══════════════ MEMORY SWIRL (story generation) ═══════════════
+function animateMemorySwirl(onDone){
+  const layer=document.getElementById('animLayer');
+  const overlay=document.createElement('div');
+  overlay.className='story-generate-overlay';
+  overlay.innerHTML=`
+    <div class="story-book-anim">📖</div>
+    <div class="gen-text">Weaving your memories<br>into a story…</div>
+    <div class="gen-dots"><span></span><span></span><span></span></div>
+  `;
+  // Swirl particles
+  const particles=['📸','🎤','📍','🦕','🌟','✏️'];
+  particles.forEach((p,i)=>{
+    const el=document.createElement('div');
+    el.className='memory-swirl-particle';
+    el.textContent=p;
+    const angle=(i/particles.length)*360;
+    const r=80;
+    el.style.left=`calc(50% + ${Math.cos(angle*Math.PI/180)*r}px)`;
+    el.style.top=`calc(40% + ${Math.sin(angle*Math.PI/180)*r}px)`;
+    el.style.setProperty('--tx',`${Math.cos(angle*Math.PI/180)*-120}px`);
+    el.style.setProperty('--ty',`${Math.sin(angle*Math.PI/180)*-120}px`);
+    el.style.animationDelay=i*0.12+'s';
+    overlay.appendChild(el);
+  });
+  layer.appendChild(overlay);
+  setTimeout(()=>{overlay.remove();onDone();},2200);
+}
+
+// ═══════════════ STAMP CELEBRATION ═══════════════
+function celebrateStamp(stamp){
+  const layer=document.getElementById('animLayer');
+  const overlay=document.createElement('div');
+  overlay.className='stamp-overlay';
+  const burstColors=['#FFD95A','#67C7F5','#7BC96F','#FFB347','#FF6B6B'];
+  let bursts='';
+  for(let i=0;i<12;i++){
+    const angle=(i/12)*360;
+    const r=90+Math.random()*40;
+    const bx=Math.cos(angle*Math.PI/180)*r;
+    const by=Math.sin(angle*Math.PI/180)*r;
+    const color=burstColors[i%burstColors.length];
+    bursts+=`<div class="burst-particle" style="background:${color};--bx:${bx}px;--by:${by}px;animation-delay:${i*0.04}s;width:${8+Math.random()*6}px;height:${8+Math.random()*6}px;"></div>`;
+  }
+  overlay.innerHTML=`
+    <div class="stamp-burst">${bursts}</div>
+    <div class="stamp-anim-inner">
+      <span class="stamp-anim-emoji">${stamp.emoji}</span>
+      <div class="stamp-anim-text">${stamp.name}</div>
+      <div class="stamp-anim-sub">🎉 New stamp earned!</div>
+    </div>
+  `;
+  layer.appendChild(overlay);
+  overlay.addEventListener('click',()=>overlay.remove());
+  setTimeout(()=>overlay.remove(),3500);
+}
+
+// ═══════════════ CAPTURE ═══════════════
+function updateTally(){
+  document.getElementById('tallyText').textContent=`${state.moments.length} moments captured today`;
+  document.getElementById('tallyChips').textContent=state.moments.map(m=>m.emoji).join(' ');
+  document.getElementById('momentCountDisplay').textContent=state.moments.length;
+  renderHomeMoments();
+}
+
+function renderHomeMoments(){
+  const cont=document.getElementById('homeMoments');
+  cont.innerHTML=state.moments.map(m=>
+    `<div class="moment-chip"><div class="moment-emoji">${m.emoji}</div><div><div class="moment-name">${m.name}</div><div class="moment-type">${m.type}</div></div></div>`
+  ).join('');
+}
+
+// Photo
+document.getElementById('capPhoto').addEventListener('click',function(){
+  const names=['Waterfront View','Dino Statue','Old Town','Park Trail','Train Yard','Flower Garden','Boat Dock','Sunset Sky'];
+  const name=names[Math.floor(Math.random()*names.length)];
+  state.moments.push({emoji:'📸',name,type:'Photo'});
+  updateTally();
+  this.classList.add('tapped');
+  setTimeout(()=>this.classList.remove('tapped'),600);
+  animatePolaroid('📸');
+  showToast(`📸 Photo saved: ${name}`);
+});
+
+// Voice
+let recInt=null;
+document.getElementById('capVoice').addEventListener('click',function(){
+  if(!state.recording){
+    state.recording=true; state.recSeconds=0;
+    this.classList.add('recording');
+    this.querySelector('.cap-desc').textContent='Tap to stop recording';
+    const timer=document.getElementById('recTimer');
+    timer.style.display='block';
+    recInt=setInterval(()=>{
+      state.recSeconds++;
+      const m=Math.floor(state.recSeconds/60),s=state.recSeconds%60;
+      timer.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    },1000);
+  } else {
+    state.recording=false; clearInterval(recInt);
+    this.classList.remove('recording');
+    this.querySelector('.cap-desc').textContent='Tap to start recording';
+    const m=Math.floor(state.recSeconds/60),s=state.recSeconds%60;
+    const dur=`${m}:${String(s).padStart(2,'0')}`;
+    document.getElementById('recTimer').style.display='none';
+    state.moments.push({emoji:'🎤',name:'Voice Note',type:dur});
+    updateTally();
+    animatePolaroid('🎤');
+    showToast(`🎤 Voice note saved (${dur})`);
+  }
+});
+
+// Drawing
+document.getElementById('capDraw').addEventListener('click',()=>{
+  const colors=['#67C7F5','#7BC96F','#FFD95A','#FF6B6B','#A78BFA','#F97316','#2D2416','#FFFFFF'];
+  openModal(`
+    <div class="modal-title">✏️ Drawing Canvas</div>
+    <div class="modal-sub">Draw something from today's adventure!</div>
+    <canvas id="drawCanvas" class="draw-canvas" width="320" height="180"></canvas>
+    <div class="color-row" id="colorRow">
+      ${colors.map(c=>`<div class="color-swatch${c===state.drawColor?' sel':''}" style="background:${c};${c==='#FFFFFF'?'border:2px solid #ddd;':''}" data-color="${c}"></div>`).join('')}
+    </div>
+    <div class="brush-row">
+      <span style="font-size:12px;font-weight:700;color:var(--text3);">Brush:</span>
+      <div class="brush-opt${state.brushSize===3?' sel':''}" data-size="3">Fine</div>
+      <div class="brush-opt${state.brushSize===6?' sel':''}" data-size="6">Medium</div>
+      <div class="brush-opt${state.brushSize===12?' sel':''}" data-size="12">Thick</div>
+    </div>
+    <div class="draw-actions">
+      <button class="draw-btn clear" id="clearBtn">🗑 Clear</button>
+      <button class="draw-btn save" id="saveDrawBtn">💾 Save Drawing</button>
+    </div>
+  `);
+  setTimeout(initCanvas,50);
+});
+
+function initCanvas(){
+  const canvas=document.getElementById('drawCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  let drawing=false,lx=0,ly=0;
+  function getPos(e){
+    const r=canvas.getBoundingClientRect();
+    const src=e.touches?e.touches[0]:e;
+    return{x:(src.clientX-r.left)*(canvas.width/r.width),y:(src.clientY-r.top)*(canvas.height/r.height)};
+  }
+  function startDraw(e){e.preventDefault();drawing=true;const p=getPos(e);lx=p.x;ly=p.y;}
+  function doDraw(e){
+    e.preventDefault();if(!drawing)return;
+    const p=getPos(e);
+    ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p.x,p.y);
+    ctx.strokeStyle=state.drawColor;ctx.lineWidth=state.brushSize;
+    ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+    lx=p.x;ly=p.y;
+  }
+  function endDraw(e){e.preventDefault();drawing=false;}
+  canvas.addEventListener('mousedown',startDraw);canvas.addEventListener('mousemove',doDraw);
+  canvas.addEventListener('mouseup',endDraw);canvas.addEventListener('mouseleave',endDraw);
+  canvas.addEventListener('touchstart',startDraw,{passive:false});
+  canvas.addEventListener('touchmove',doDraw,{passive:false});
+  canvas.addEventListener('touchend',endDraw,{passive:false});
+  document.getElementById('colorRow').addEventListener('click',e=>{
+    const sw=e.target.closest('.color-swatch');if(!sw)return;
+    state.drawColor=sw.dataset.color;
+    document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('sel'));
+    sw.classList.add('sel');
+  });
+  document.querySelectorAll('.brush-opt').forEach(b=>{
+    b.addEventListener('click',function(){
+      state.brushSize=parseInt(this.dataset.size);
+      document.querySelectorAll('.brush-opt').forEach(x=>x.classList.remove('sel'));
+      this.classList.add('sel');
+    });
+  });
+  document.getElementById('clearBtn').addEventListener('click',()=>{
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+  });
+  document.getElementById('saveDrawBtn').addEventListener('click',()=>{
+    state.moments.push({emoji:'✏️',name:'My Drawing',type:'Drawing'});
+    updateTally(); closeModal();
+    animatePolaroid('✏️');
+    showToast('✏️ Drawing saved!');
+  });
+}
+
+// Location pin
+document.getElementById('capLocation').addEventListener('click',function(){
+  const locs=['Tacoma Waterfront','Point Defiance Park','Ruston Way','Wright Park','Stadium District'];
+  const loc=locs[Math.floor(Math.random()*locs.length)];
+  this.classList.add('tapped');
+  this.querySelector('.cap-desc').textContent='📡 Locking GPS…';
+  setTimeout(()=>{
+    this.classList.remove('tapped');
+    this.querySelector('.cap-desc').textContent='Drop a GPS pin here';
+    state.moments.push({emoji:'📍',name:loc,type:'Location'});
+    updateTally();
+    showToast(`📍 Location pinned: ${loc}`);
+  },1200);
+});
+
+// Sticker
+document.getElementById('capSticker').addEventListener('click',()=>{
+  const stickers=['🦕','🦁','🌺','⚓','🎨','🚂','🍦','🌲','🏛️','🚀','🦋','🐠','🌈','🎪','🏕️','🦜','🐘','🌻','⭐','🎭','🦒','🦓','🐬','🦅'];
+  openModal(`
+    <div class="modal-title">🌟 Choose a Sticker</div>
+    <div class="modal-sub">Pick something from today's adventure</div>
+    <div class="sticker-grid" id="stickerGrid">
+      ${stickers.map(s=>`<div class="sticker-opt${state.selectedSticker===s?' sel':''}" data-sticker="${s}">${s}</div>`).join('')}
+    </div>
+    <div style="margin-top:16px;">
+      <button style="width:100%;padding:12px;border:none;border-radius:14px;background:var(--sky);color:var(--white);font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;cursor:pointer;" id="saveStickerBtn">Add Sticker to Story</button>
+    </div>
+  `);
+  document.getElementById('stickerGrid').addEventListener('click',e=>{
+    const opt=e.target.closest('.sticker-opt');if(!opt)return;
+    state.selectedSticker=opt.dataset.sticker;
+    document.querySelectorAll('.sticker-opt').forEach(s=>s.classList.remove('sel'));
+    opt.classList.add('sel');
+  });
+  document.getElementById('saveStickerBtn').addEventListener('click',()=>{
+    if(!state.selectedSticker){showToast('Pick a sticker first!');return;}
+    state.moments.push({emoji:state.selectedSticker,name:'Sticker',type:'Sticker'});
+    updateTally(); closeModal();
+    animatePolaroid(state.selectedSticker);
+    showToast(`${state.selectedSticker} Sticker added!`);
+    state.selectedSticker=null;
+  });
+});
+
+// ═══════════════ MAP ═══════════════
+function renderLocationList(){
+  const list=document.getElementById('locationList');
+  list.innerHTML=state.locations.map(loc=>`
+    <div class="loc-row" data-locid="${loc.id}">
+      <div class="loc-icon">${loc.emoji}</div>
+      <div class="loc-name">${loc.name}</div>
+      <div class="loc-saved ${loc.saved?'yes':'no'}" data-locid="${loc.id}">${loc.saved?'✓ Saved':'+ Add'}</div>
+    </div>
+  `).join('');
+}
+
+function toggleLocation(id){
+  const loc=state.locations.find(l=>l.id===id);if(!loc)return;
+  loc.saved=!loc.saved;
+  const bub=document.getElementById(`pinBub${id}`);
+  if(bub) bub.classList.toggle('saved',loc.saved);
+  renderLocationList();
+  showToast(loc.saved?`📍 ${loc.name} saved!`:`${loc.name} removed`);
+  document.getElementById('statLoc').textContent=state.locations.filter(l=>l.saved).length+25;
+}
+
+function openLocationModal(id){
+  const loc=state.locations.find(l=>l.id===id);if(!loc)return;
+  openModal(`
+    <div class="loc-modal-icon">${loc.emoji}</div>
+    <div class="loc-modal-name">${loc.name}</div>
+    <div class="loc-modal-coords">📍 ${loc.coords}</div>
+    <button class="loc-modal-btn ${loc.saved?'unsave':'save'}" id="locToggleBtn">
+      ${loc.saved?'🗑 Remove from Story':'✚ Add to Story'}
+    </button>
+    <button class="loc-modal-btn cancel" id="locCancelBtn">Cancel</button>
+  `);
+  document.getElementById('locToggleBtn').addEventListener('click',()=>{toggleLocation(id);closeModal();});
+  document.getElementById('locCancelBtn').addEventListener('click',closeModal);
+}
+
+document.querySelectorAll('.map-pin').forEach(pin=>{
+  pin.addEventListener('click',()=>openLocationModal(parseInt(pin.dataset.loc)));
+});
+document.getElementById('locationList').addEventListener('click',e=>{
+  const row=e.target.closest('.loc-row');if(!row)return;
+  const id=parseInt(row.dataset.locid);
+  if(e.target.closest('.loc-saved')) toggleLocation(id);
+  else openLocationModal(id);
+});
+renderLocationList();
+
+// ═══════════════ STORY ═══════════════
+document.querySelectorAll('.s-tab').forEach(tab=>{
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.s-tab').forEach(t=>t.classList.remove('active'));
+    this.classList.add('active');
+    state.selectedTab=this.dataset.tab;
+    document.getElementById('storyBody').innerHTML=state.storyTexts[state.selectedTab];
+    const titles={bedtime:'The Big Dinosaur Day 🦕',adventure:'The Big Dinosaur Day ⚔️',educational:'The Big Dinosaur Day 🔬'};
+    document.getElementById('storyTitle').textContent=titles[state.selectedTab];
+    stopAudio();
+  });
+});
+
+document.getElementById('genStoryBtn').addEventListener('click',()=>{
+  animateMemorySwirl(()=>{
+    showToast('✨ Your story has been woven! 📖');
+    // Subtly pulse the story book
+    const book=document.querySelector('.story-book');
+    book.style.transform='scale(1.02)';
+    book.style.transition='transform .3s';
+    setTimeout(()=>{book.style.transform='';},400);
+    openStorySuccessModal();
+  });
+});
+
+// ═══════════════ STORY SUCCESS SCREEN ═══════════════
+// Shown right after a story finishes generating. Always escapable three
+// ways (✕ close, tap outside, or the Return Home button) so the user can
+// never get stuck here, and both action buttons are fully wired up.
+function openStorySuccessModal(){
+  const title=document.getElementById('storyTitle').textContent;
+  openModal(`
+    <div style="text-align:center;margin-bottom:6px;">
+      <div style="font-size:52px;line-height:1;">🎉📖✨</div>
+      <div class="modal-title" style="text-align:center;margin-top:10px;">Your Family's First Story Has Been Created!</div>
+      <div class="modal-sub" style="text-align:center;">"${title}" is ready to read and keep forever.</div>
+    </div>
+    <button class="loc-modal-btn save" id="successReadBtn">📖 Read My Story</button>
+    <button class="loc-modal-btn vault" id="successVaultBtn">💾 Save To Story Vault</button>
+    <button class="loc-modal-btn cancel" id="successHomeBtn">🏠 Return Home</button>
+  `);
+  document.getElementById('successReadBtn').addEventListener('click',()=>{
+    closeModal();
+    switchScreen('story');
+    const book=document.querySelector('.story-book');
+    if(book) book.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  document.getElementById('successVaultBtn').addEventListener('click',saveCurrentStoryToVault);
+  document.getElementById('successHomeBtn').addEventListener('click',()=>{
+    closeModal();
+    switchScreen('home');
+  });
+}
+
+function saveCurrentStoryToVault(){
+  const title=document.getElementById('storyTitle').textContent;
+  const text=document.getElementById('storyBody').innerHTML;
+  const today='June 1, 2026';
+  const alreadySaved=state.stories.some(s=>s.title===title && s.date===today);
+  if(!alreadySaved){
+    state.stories.unshift({emoji:'🦕',bg:'#fff0cc',title,date:today,moments:state.moments.length,text});
+    renderVault();
+  }
+  closeModal();
+  showToast(alreadySaved?'💾 Already in your Story Vault!':'💾 Saved to your Story Vault!');
+  switchScreen('vault');
+}
+
+document.querySelectorAll('.voice-pill').forEach(pill=>{
+  pill.addEventListener('click',function(){
+    document.querySelectorAll('.voice-pill').forEach(p=>p.classList.remove('active'));
+    this.classList.add('active');
+    state.selectedVoice=this.dataset.voice;
+    const names={lullaby:'Calm Lullaby 🌙',storyteller:'Storyteller 🎭',child:'Child Voice ⭐',owl:'Wise Owl 🦉'};
+    showToast(`Voice: ${names[state.selectedVoice]}`);
+  });
+});
+
+function formatTime(s){return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
+function stopAudio(){
+  state.playing=false;clearInterval(state.audioInterval);
+  document.getElementById('playBtn').textContent='▶';
+}
+function startAudio(){
+  state.playing=true;document.getElementById('playBtn').textContent='⏸';
+  state.audioInterval=setInterval(()=>{
+    state.audioSeconds=Math.min(state.audioSeconds+1,state.audioDuration);
+    const pct=(state.audioSeconds/state.audioDuration)*100;
+    document.getElementById('audioFill').style.width=pct+'%';
+    document.getElementById('audioElapsed').textContent=formatTime(state.audioSeconds);
+    if(state.audioSeconds>=state.audioDuration){
+      stopAudio();state.audioSeconds=0;
+      document.getElementById('audioFill').style.width='0%';
+      document.getElementById('audioElapsed').textContent='0:00';
+      showToast('🌙 Story complete! Sweet dreams ✨');
+    }
+  },1000);
+}
+document.getElementById('playBtn').addEventListener('click',()=>{
+  if(state.playing) stopAudio(); else startAudio();
+});
+document.getElementById('audioTrack').addEventListener('click',e=>{
+  const rect=e.currentTarget.getBoundingClientRect();
+  const pct=(e.clientX-rect.left)/rect.width;
+  state.audioSeconds=Math.round(pct*state.audioDuration);
+  document.getElementById('audioFill').style.width=(pct*100)+'%';
+  document.getElementById('audioElapsed').textContent=formatTime(state.audioSeconds);
+});
+
+// ═══════════════ PASSPORT ═══════════════
+function renderStamps(){
+  document.getElementById('stampsGrid').innerHTML=state.stamps.map((s,i)=>`
+    <div class="stamp ${s.earned?'earned':'locked'}" data-stamp="${i}">
+      <div class="stamp-emoji">${s.emoji}</div>
+      <div class="stamp-name">${s.name}</div>
+      <div class="stamp-status">${s.earned?'✅':'🔒'}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('stampsGrid').addEventListener('click',e=>{
+  const stamp=e.target.closest('.stamp');if(!stamp)return;
+  const idx=parseInt(stamp.dataset.stamp);
+  const s=state.stamps[idx];
+  if(s.earned){
+    celebrateStamp(s);
+  } else {
+    showToast(`🔒 Keep adventuring to unlock ${s.name}!`);
+    stamp.style.transform='scale(0.9)';
+    setTimeout(()=>stamp.style.transform='',300);
+  }
+});
+renderStamps();
+
+// ═══════════════ VAULT ═══════════════
+function renderVault(){
+  document.getElementById('vaultList').innerHTML=state.stories.map((s,i)=>`
+    <div class="vault-card ${state.expandedVault===i?'expanded':''}" data-story="${i}">
+      <div class="vault-icon" style="background:${s.bg};">${s.emoji}</div>
+      <div class="vault-info">
+        <div class="vault-title-text">${s.title}</div>
+        <div class="vault-date">${s.date}</div>
+        <div class="vault-mmt">${s.moments} moments</div>
+      </div>
+      <div class="vault-acts">
+        <div class="vault-act" data-action="share" data-story="${i}">📤</div>
+        <div class="vault-act" data-action="print" data-story="${i}">🖨️</div>
+      </div>
+      <div class="vault-preview">${s.text}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('vaultList').addEventListener('click',e=>{
+  const act=e.target.closest('.vault-act');
+  if(act){
+    e.stopPropagation();
+    const idx=parseInt(act.dataset.story);
+    const story=state.stories[idx];
+    if(act.dataset.action==='share') showToast(`📤 Sharing "${story.title}"…`);
+    if(act.dataset.action==='print') showToast(`🖨️ Sending to printer…`);
+    return;
+  }
+  const card=e.target.closest('.vault-card');if(!card)return;
+  const idx=parseInt(card.dataset.story);
+  state.expandedVault=state.expandedVault===idx?null:idx;
+  renderVault();
+});
+renderVault();
+
+// ═══════════════ PROFILE & SETTINGS ═══════════════
+// Opened by tapping the avatar on Home. Uses the same bottom-sheet modal,
+// row, and pill styles already used everywhere else in the app (location
+// list rows, voice pills, sticker grid) -- no new UI patterns introduced.
+const avatarOptions=['👧','👦','🧒','👶','🦖','🦄','🐢','🌟','🚀','🌈'];
+
+function openProfileModal(){
+  openModal(`
+    <div style="text-align:center;margin-bottom:4px;">
+      <div id="profilePreviewAvatar" style="width:60px;height:60px;border-radius:50%;background:var(--yellow);
+        display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 10px;
+        box-shadow:0 4px 16px rgba(0,0,0,.18);">${state.childAvatar}</div>
+      <div class="modal-title" style="text-align:center;">Profile &amp; Settings</div>
+      <div class="modal-sub" style="text-align:center;">Manage ${state.childName}'s profile and app preferences</div>
+    </div>
+
+    <div class="section-title" style="padding:0;margin:14px 0 6px;">Child Profile</div>
+    <div class="loc-row" id="rowUploadPhoto"><div class="loc-icon">📷</div><div class="loc-name">Upload Child/Family Photo</div><div class="otd-mem-arrow">›</div></div>
+    <div class="loc-row" id="rowChangeAvatar"><div class="loc-icon">🎭</div><div class="loc-name">Change Avatar</div><div class="otd-mem-arrow">›</div></div>
+    <div class="loc-row" style="border-bottom:none;flex-wrap:wrap;">
+      <div class="loc-icon">✏️</div><div class="loc-name" style="flex:none;">Child Name</div>
+      <input id="childNameInput" value="${state.childName}" style="flex:1;min-width:80px;margin-left:6px;padding:7px 10px;
+        border:1.5px solid var(--sand);border-radius:10px;font-family:'Baloo 2',cursive;font-size:13px;color:var(--text);"/>
+      <div style="font-size:18px;cursor:pointer;margin-left:8px;" id="saveNameBtn">💾</div>
+    </div>
+
+    <div class="section-title" style="padding:0;margin:16px 0 8px;">Theme Selection</div>
+    <div class="voice-row" id="themeRow" style="padding:0 0 4px;">
+      <div class="voice-pill${state.theme==='girl'?' active':''}" data-theme="girl">🌸 Girl Theme</div>
+      <div class="voice-pill${state.theme==='boy'?' active':''}" data-theme="boy">🚀 Boy Theme</div>
+      <div class="voice-pill${state.theme==='neutral'?' active':''}" data-theme="neutral">🌈 Neutral Theme</div>
+    </div>
+
+    <div class="section-title" style="padding:0;margin:16px 0 8px;">Parent Settings</div>
+    <div class="loc-row" data-setting="GPS Settings"><div class="loc-icon">📍</div><div class="loc-name">GPS Settings</div><div class="otd-mem-arrow">›</div></div>
+    <div class="loc-row" data-setting="Story Preferences"><div class="loc-icon">📖</div><div class="loc-name">Story Preferences</div><div class="otd-mem-arrow">›</div></div>
+    <div class="loc-row" data-setting="Voice Narration Settings"><div class="loc-icon">🎙️</div><div class="loc-name">Voice Narration Settings</div><div class="otd-mem-arrow">›</div></div>
+    <div class="loc-row" data-setting="Notifications" style="border-bottom:none;"><div class="loc-icon">🔔</div><div class="loc-name">Notifications</div><div class="otd-mem-arrow">›</div></div>
+
+    <div class="section-title" style="padding:0;margin:16px 0 8px;">App Settings</div>
+    <div class="loc-row" data-setting="Privacy"><div class="loc-icon">🔒</div><div class="loc-name">Privacy</div><div class="otd-mem-arrow">›</div></div>
+    <div class="loc-row" data-setting="Account"><div class="loc-icon">👤</div><div class="loc-name">Account</div><div class="otd-mem-arrow">›</div></div>
+    <div class="loc-row" data-setting="Subscription" style="border-bottom:none;"><div class="loc-icon">💳</div><div class="loc-name">Subscription</div><div class="otd-mem-arrow">›</div></div>
+  `);
+  wireProfileModal();
+}
+
+function wireProfileModal(){
+  const content=document.getElementById('modalContent');
+  document.getElementById('rowUploadPhoto').addEventListener('click',()=>{
+    showToast('📷 Photo upload coming soon!');
+  });
+  document.getElementById('rowChangeAvatar').addEventListener('click',openAvatarPicker);
+  document.getElementById('saveNameBtn').addEventListener('click',()=>{
+    const val=document.getElementById('childNameInput').value.trim();
+    if(val){
+      state.childName=val;
+      updateClock();
+      showToast(`✅ Name updated to ${val}!`);
+    }
+  });
+  document.getElementById('themeRow').addEventListener('click',e=>{
+    const pill=e.target.closest('.voice-pill');if(!pill)return;
+    state.theme=pill.dataset.theme;
+    document.querySelectorAll('#themeRow .voice-pill').forEach(p=>p.classList.remove('active'));
+    pill.classList.add('active');
+    const names={girl:'🌸 Girl Theme',boy:'🚀 Boy Theme',neutral:'🌈 Neutral Theme'};
+    showToast(`${names[state.theme]} selected!`);
+  });
+  content.querySelectorAll('[data-setting]').forEach(row=>{
+    row.addEventListener('click',()=>{
+      showToast(`🔧 ${row.dataset.setting} — coming soon!`);
+    });
+  });
+}
+
+function openAvatarPicker(){
+  openModal(`
+    <div class="modal-title" style="text-align:center;">🎭 Choose an Avatar</div>
+    <div class="modal-sub" style="text-align:center;">Pick a new look for ${state.childName}</div>
+    <div class="sticker-grid" id="avatarGrid">
+      ${avatarOptions.map(a=>`<div class="sticker-opt${state.childAvatar===a?' sel':''}" data-avatar="${a}">${a}</div>`).join('')}
+    </div>
+    <button class="loc-modal-btn cancel" id="avatarBackBtn" style="margin-top:16px;">← Back to Profile</button>
+  `);
+  document.getElementById('avatarGrid').addEventListener('click',e=>{
+    const opt=e.target.closest('.sticker-opt');if(!opt)return;
+    state.childAvatar=opt.dataset.avatar;
+    document.querySelectorAll('.hero-avatar').forEach(el=>el.textContent=state.childAvatar);
+    showToast(`${state.childAvatar} Avatar updated!`);
+    closeModal();
+  });
+  document.getElementById('avatarBackBtn').addEventListener('click',openProfileModal);
+}
+
+// ═══════════════ ON THIS DAY ═══════════════
+function renderOnThisDay(){
+  document.getElementById('otdMemories').innerHTML=state.onThisDay.map((m,i)=>`
+    <div class="otd-memory-row" data-otd="${i}">
+      <div class="otd-mem-icon" style="background:${m.bg};">${m.emoji}</div>
+      <div>
+        <div class="otd-mem-title">${m.title}</div>
+        <div class="otd-mem-date">${m.date} · ${m.type}</div>
+      </div>
+      <div class="otd-mem-arrow">›</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('otdMemories').addEventListener('click',e=>{
+  const row=e.target.closest('.otd-memory-row');if(!row)return;
+  const m=state.onThisDay[parseInt(row.dataset.otd)];
+  openModal(`
+    <div style="text-align:center;margin-bottom:12px;">
+      <div style="font-size:56px;">${m.emoji}</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:20px;color:var(--text);margin-top:8px;">${m.title}</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">💝 ${m.date}</div>
+    </div>
+    <div style="background:var(--paper);border-radius:14px;padding:16px;font-family:'Lora',serif;
+      font-size:13px;line-height:1.8;color:var(--text2);font-style:italic;border:1px solid var(--sand);">
+      On this magical day a year ago, Mia discovered something wonderful.<br>
+      The memory lives on — forever part of her story. 🌸✨
+    </div>
+    <button style="width:100%;margin-top:14px;padding:12px;border:none;border-radius:14px;
+      background:var(--yellow);color:var(--brown);font-family:'Fredoka One',cursive;font-size:16px;cursor:pointer;"
+      onclick="document.getElementById('modalOverlay').classList.remove('open')">
+      💛 Treasure this memory
+    </button>
+  `);
+});
+renderOnThisDay();
+
+// ═══════════════ INIT ═══════════════
+updateTally();
+</script>
+</body>
+</html>
